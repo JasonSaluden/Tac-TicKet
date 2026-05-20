@@ -46,8 +46,8 @@ CREATE TABLE TICKET (
   created_at       DATETIME,
   updated_at       DATETIME,
   id_category      INT NOT NULL,
-  id_user_createur INT NOT NULL,
-  id_user_agent    INT NULL
+  id_user_agent    INT NULL,
+  id_user_createur INT NOT NULL
 );
 
 CREATE TABLE USERS (
@@ -69,8 +69,8 @@ ALTER TABLE MESSAGE ADD FOREIGN KEY (id_conversation) REFERENCES CONVERSATION (i
 ALTER TABLE SPECIALISER ADD FOREIGN KEY (id_category) REFERENCES CATEGORY (id_category);
 ALTER TABLE SPECIALISER ADD FOREIGN KEY (id_user) REFERENCES USERS (id_user);
 
-ALTER TABLE TICKET ADD FOREIGN KEY (id_user_agent) REFERENCES USERS (id_user);
 ALTER TABLE TICKET ADD FOREIGN KEY (id_user_createur) REFERENCES USERS (id_user);
+ALTER TABLE TICKET ADD FOREIGN KEY (id_user_agent) REFERENCES USERS (id_user);
 ALTER TABLE TICKET ADD FOREIGN KEY (id_category) REFERENCES CATEGORY (id_category);
 
 ALTER TABLE USERS ADD FOREIGN KEY (id_role) REFERENCES ROLE (id_role);
