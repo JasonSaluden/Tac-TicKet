@@ -5,5 +5,5 @@
 - **MESSAGE** (<u>id_message</u>, content, created_at, updated_at, _#id_conversation_, _#id_user_)
 - **ROLE** (<u>id_role</u>, name)
 - **SPECIALISER** (<u>_#id_user_</u>, <u>_#id_category_</u>)
-- **TICKET** (<u>id_ticket</u>, title, description, status, priority, created_at, updated_at, _#id_category_, _#id_user createur_, _#id_user agent_)
+- **TICKET** (<u>id_ticket</u>, title, description, status, priority, created_at, updated_at, _#id_category_, _#id_user agent_, _#id_user createur_)
 - **USERS** (<u>id_user</u>, first_name, last_name, email, password, created_at, _#id_role_)
