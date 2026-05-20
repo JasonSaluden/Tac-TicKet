@@ -11,5 +11,5 @@ import com.tictac.tictac.entity.Message;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findByConversation(Conversation conversation);
-    List<Message> findByUserId(Long userId);
+    List<Message> findByAuthorIdUser(Long userId);
 }

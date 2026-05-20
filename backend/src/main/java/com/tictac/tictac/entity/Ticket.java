@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "ticket")
@@ -52,17 +53,20 @@ public class Ticket {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "id_user_createur", nullable = false)
-    private Long userCreatorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_createur", nullable = false)
+    private User creator;
 
-    @Column(name = "id_user_agent")
-    private Long userAgentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_agent")
+    private User assignedAgent;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_category", nullable = false)
     private Category category;
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private Set<Conversation> conversations;
 
     @PrePersist

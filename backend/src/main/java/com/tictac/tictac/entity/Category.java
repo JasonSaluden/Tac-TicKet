@@ -1,5 +1,6 @@
 package com.tictac.tictac.entity;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
@@ -8,12 +9,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "category")
@@ -32,5 +35,12 @@ public class Category {
     private String name;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Ticket> tickets;
+    @ToString.Exclude
+    @Builder.Default
+    private Set<Ticket> tickets = new HashSet<>();
+
+    @ManyToMany(mappedBy = "specialties")
+    @ToString.Exclude
+    @Builder.Default
+    private Set<User> specialists = new HashSet<>();
 }

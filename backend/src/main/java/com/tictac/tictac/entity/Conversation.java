@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "conversation")
@@ -41,6 +42,7 @@ public class Conversation {
     private Ticket ticket;
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private Set<Message> messages;
 
     @PrePersist

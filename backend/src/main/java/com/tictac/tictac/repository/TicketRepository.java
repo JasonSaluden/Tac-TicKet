@@ -11,6 +11,6 @@ import com.tictac.tictac.entity.Ticket;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByCategory(Category category);
-    List<Ticket> findByUserCreatorId(Long userId);
+    List<Ticket> findByCreatorIdUser(Long userId);
     List<Ticket> findByStatus(String status);
 }

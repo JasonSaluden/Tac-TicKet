@@ -39,7 +39,7 @@ public class TicketService {
     }
 
     public List<Ticket> getTicketsByCreator(Long userId) {
-        return ticketRepository.findByUserCreatorId(userId);
+        return ticketRepository.findByCreatorIdUser(userId);
     }
 
     public List<Ticket> getTicketsByStatus(String status) {
@@ -63,7 +63,7 @@ public class TicketService {
                     ticket.setDescription(ticketDetails.getDescription());
                     ticket.setStatus(ticketDetails.getStatus());
                     ticket.setPriority(ticketDetails.getPriority());
-                    ticket.setUserAgentId(ticketDetails.getUserAgentId());
+                    ticket.setAssignedAgent(ticketDetails.getAssignedAgent());
                     ticket.setCategory(ticketDetails.getCategory());
                     return ticketRepository.save(ticket);
                 })

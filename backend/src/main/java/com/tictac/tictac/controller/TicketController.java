@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tictac.tictac.dto.TicketDTO;
 import com.tictac.tictac.entity.Category;
 import com.tictac.tictac.entity.Ticket;
+import com.tictac.tictac.entity.User;
 import com.tictac.tictac.service.CategoryService;
 import com.tictac.tictac.service.TicketService;
+import com.tictac.tictac.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +34,7 @@ public class TicketController {
 
     private final TicketService ticketService;
     private final CategoryService categoryService;
+    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<TicketDTO>> getAllTickets() {
@@ -81,13 +84,22 @@ public class TicketController {
         Category category = categoryService.getCategoryById(ticketDTO.getIdCategory())
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + ticketDTO.getIdCategory()));
 
+        User creator = userService.getUserById(ticketDTO.getUserCreatorId())
+                .orElseThrow(() -> new RuntimeException("Creator user not found with id: " + ticketDTO.getUserCreatorId()));
+
+        User assignedAgent = null;
+        if (ticketDTO.getUserAgentId() != null) {
+            assignedAgent = userService.getUserById(ticketDTO.getUserAgentId())
+                    .orElseThrow(() -> new RuntimeException("Agent user not found with id: " + ticketDTO.getUserAgentId()));
+        }
+
         Ticket ticket = Ticket.builder()
                 .title(ticketDTO.getTitle())
                 .description(ticketDTO.getDescription())
                 .status(ticketDTO.getStatus() != null ? ticketDTO.getStatus() : "OPEN")
                 .priority(ticketDTO.getPriority() != null ? ticketDTO.getPriority() : "MEDIUM")
-                .userCreatorId(ticketDTO.getUserCreatorId())
-                .userAgentId(ticketDTO.getUserAgentId())
+                .creator(creator)
+                .assignedAgent(assignedAgent)
                 .category(category)
                 .build();
 
@@ -106,13 +118,25 @@ public class TicketController {
                     .orElseThrow(() -> new RuntimeException("Category not found with id: " + ticketDTO.getIdCategory()));
         }
 
+        User creator = null;
+        if (ticketDTO.getUserCreatorId() != null) {
+            creator = userService.getUserById(ticketDTO.getUserCreatorId())
+                    .orElseThrow(() -> new RuntimeException("Creator user not found with id: " + ticketDTO.getUserCreatorId()));
+        }
+
+        User assignedAgent = null;
+        if (ticketDTO.getUserAgentId() != null) {
+            assignedAgent = userService.getUserById(ticketDTO.getUserAgentId())
+                    .orElseThrow(() -> new RuntimeException("Agent user not found with id: " + ticketDTO.getUserAgentId()));
+        }
+
         Ticket ticket = Ticket.builder()
                 .title(ticketDTO.getTitle())
                 .description(ticketDTO.getDescription())
                 .status(ticketDTO.getStatus())
                 .priority(ticketDTO.getPriority())
-                .userCreatorId(ticketDTO.getUserCreatorId())
-                .userAgentId(ticketDTO.getUserAgentId())
+                .creator(creator)
+                .assignedAgent(assignedAgent)
                 .category(category)
                 .build();
 
@@ -135,8 +159,8 @@ public class TicketController {
                 .priority(ticket.getPriority())
                 .createdAt(ticket.getCreatedAt())
                 .updatedAt(ticket.getUpdatedAt())
-                .userCreatorId(ticket.getUserCreatorId())
-                .userAgentId(ticket.getUserAgentId())
+                .userCreatorId(ticket.getCreator() != null ? ticket.getCreator().getIdUser() : null)
+                .userAgentId(ticket.getAssignedAgent() != null ? ticket.getAssignedAgent().getIdUser() : null)
                 .idCategory(ticket.getCategory() != null ? ticket.getCategory().getIdCategory() : null)
                 .build();
     }
