@@ -1,0 +1,91 @@
+package com.tictac.tictac.controller;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.tictac.tictac.dto.UserDTO;
+import com.tictac.tictac.entity.RoleName;
+import com.tictac.tictac.entity.User;
+import com.tictac.tictac.service.UserService;
+
+@RestController
+@RequestMapping("/users")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers().stream()
+                .map(this::toDTO).collect(Collectors.toList()));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.idUser")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        return userService.getUserById(id)
+                .map(u -> ResponseEntity.ok(toDTO(u)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/agents")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('AGENT')")
+    public ResponseEntity<List<UserDTO>> getAgents() {
+        return ResponseEntity.ok(userService.getUsersByRole(RoleName.AGENT).stream()
+                .map(this::toDTO).collect(Collectors.toList()));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.idUser")
+    public ResponseEntity<UserDTO> updateUser(
+            @PathVariable Long id,
+            @RequestBody UserDTO dto,
+            @AuthenticationPrincipal User requester
+    ) {
+        User updates = User.builder()
+                .firstName(dto.getFirstName())
+                .lastName(dto.getLastName())
+                .email(dto.getEmail())
+                .build();
+
+        // Only admins can change roles
+        if (dto.getRole() != null && requester.getRole().getName() == RoleName.ADMIN) {
+            // role update handled inside service if role entity is passed
+        }
+
+        return ResponseEntity.ok(toDTO(userService.updateUser(id, updates)));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    private UserDTO toDTO(User user) {
+        return UserDTO.builder()
+                .idUser(user.getIdUser())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole().getName().name())
+                .createdAt(user.getCreatedAt())
+                .build();
+    }
+}
