@@ -1,31 +1,282 @@
 import { useAuth } from '../context/AuthContext'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+
+interface Ticket {
+  idTicket: number
+  title: string
+  status: string
+  priority: string
+  createdAt: string
+}
+
+interface Category {
+  idCategory: number
+  name: string
+}
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
+  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [ticketsRes, categoriesRes] = await Promise.all([
+          axios.get('http://localhost:8080/api/tickets', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }),
+          axios.get('http://localhost:8080/api/categories', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          })
+        ])
+        setTickets(ticketsRes.data)
+        setCategories(categoriesRes.data)
+      } catch (error) {
+        console.error('Failed to fetch data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // Calculate statistics
+  const stats = {
+    total: tickets.length,
+    open: tickets.filter(t => t.status === 'OPEN').length,
+    inProgress: tickets.filter(t => t.status === 'IN_PROGRESS').length,
+    resolved: tickets.filter(t => t.status === 'RESOLVED').length,
+    closed: tickets.filter(t => t.status === 'CLOSED').length
+  }
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'URGENT': return 'bg-red-100 text-red-800'
+      case 'HIGH': return 'bg-orange-100 text-orange-800'
+      case 'MEDIUM': return 'bg-yellow-100 text-yellow-800'
+      case 'LOW': return 'bg-green-100 text-green-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'OPEN': return 'bg-blue-50 border-blue-200'
+      case 'IN_PROGRESS': return 'bg-purple-50 border-purple-200'
+      case 'RESOLVED': return 'bg-green-50 border-green-200'
+      case 'CLOSED': return 'bg-gray-50 border-gray-200'
+      default: return 'bg-white border-gray-200'
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Tac-TicKet</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">
-              {user?.firstName} {user?.lastName}
-              <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-                {user?.role}
-              </span>
-            </span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">🎫</span>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Tac-TicKet</h1>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 font-semibold">
+                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+                </span>
+              </div>
+              <div className="text-sm">
+                <p className="font-medium text-gray-900">
+                  {user?.firstName} {user?.lastName}
+                </p>
+                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                  {user?.role}
+                </span>
+              </div>
+            </div>
             <button
               onClick={logout}
-              className="text-sm text-gray-500 hover:text-gray-700 underline"
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition"
             >
               Sign out
             </button>
           </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <p className="text-gray-500 text-sm">Dashboard — your teammates will build this part.</p>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome back, {user?.firstName}! 👋
+          </h2>
+          <p className="text-gray-600">Here's what's happening with your support tickets today.</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium mb-1">Total Tickets</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
+                📊
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium mb-1">Open</p>
+                <p className="text-3xl font-bold text-blue-600">{stats.open}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
+                ✨
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium mb-1">In Progress</p>
+                <p className="text-3xl font-bold text-purple-600">{stats.inProgress}</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-2xl">
+                ⚡
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium mb-1">Resolved</p>
+                <p className="text-3xl font-bold text-green-600">{stats.resolved}</p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-2xl">
+                ✅
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium mb-1">Closed</p>
+                <p className="text-3xl font-bold text-gray-600">{stats.closed}</p>
+              </div>
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">
+                ✔️
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Recent Tickets */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-900">Recent Tickets</h3>
+                <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                  View all →
+                </button>
+              </div>
+
+              {loading ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Loading tickets...</p>
+                </div>
+              ) : tickets.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No tickets yet. Create your first ticket! 🚀</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {tickets.slice(0, 5).map(ticket => (
+                    <div
+                      key={ticket.idTicket}
+                      className={`border rounded-lg p-4 transition hover:shadow-md ${getStatusColor(ticket.status)}`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 mb-1">{ticket.title}</p>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${getPriorityColor(ticket.priority)}`}>
+                              {ticket.priority}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {new Date(ticket.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="inline-block px-3 py-1 bg-blue-600 text-white text-xs rounded-full font-medium">
+                          {ticket.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Categories */}
+          <div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-6">Categories</h3>
+
+              {loading ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 text-sm">Loading...</p>
+                </div>
+              ) : categories.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 text-sm">No categories yet</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {categories.map(category => (
+                    <button
+                      key={category.idCategory}
+                      className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition font-medium text-gray-900 text-sm"
+                    >
+                      {category.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <button className="w-full mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+                + New Category
+              </button>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+              <div className="space-y-2">
+                <button className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition text-sm">
+                  + Create Ticket
+                </button>
+                <button className="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition text-sm">
+                  View Reports
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
