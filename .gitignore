@@ -6,3 +6,21 @@
 # OS
 .DS_Store
 Thumbs.db
+
+# Node/npm
+node_modules/
+package-lock.json
+dist/
+build/
+
+# Java/Maven
+target/
+*.jar
+*.class
+
+# Environment
+.env
+.env.local
+
+# Docker
+mysql_data/
