@@ -1,0 +1,17 @@
+package com.tictac.tictac.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.tictac.tictac.entity.RoleName;
+import com.tictac.tictac.entity.User;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+    boolean existsByEmail(String email);
+    List<User> findByRole_Name(RoleName roleName);
+}
