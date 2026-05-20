@@ -21,9 +21,12 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/health", "/health/**").permitAll()
-                .requestMatchers("/api/**").permitAll()
+            .authorizeHttpRequests(auth -> auth                
+                .requestMatchers("/health", "/actuator/**").permitAll()
+                .requestMatchers("/categories", "/categories/**").permitAll()
+                .requestMatchers("/tickets", "/tickets/**").permitAll()
+                .requestMatchers("/conversations", "/conversations/**").permitAll()
+                .requestMatchers("/messages", "/messages/**").permitAll()
                 .anyRequest().authenticated()
             );
         return http.build();
