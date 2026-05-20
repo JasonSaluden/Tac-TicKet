@@ -40,8 +40,9 @@ public class Message {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "id_user", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user", nullable = false)
+    private User author;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_conversation", nullable = false)

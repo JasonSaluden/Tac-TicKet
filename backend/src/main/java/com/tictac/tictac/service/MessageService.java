@@ -36,7 +36,7 @@ public class MessageService {
     }
 
     public List<Message> getMessagesByUser(Long userId) {
-        return messageRepository.findByUserId(userId);
+        return messageRepository.findByAuthorIdUser(userId);
     }
 
     public Message createMessage(Message message) {

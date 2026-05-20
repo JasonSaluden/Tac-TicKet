@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tictac.tictac.dto.MessageDTO;
 import com.tictac.tictac.entity.Conversation;
 import com.tictac.tictac.entity.Message;
+import com.tictac.tictac.entity.User;
 import com.tictac.tictac.service.ConversationService;
 import com.tictac.tictac.service.MessageService;
+import com.tictac.tictac.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +33,7 @@ public class MessageController {
 
     private final MessageService messageService;
     private final ConversationService conversationService;
+    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<List<MessageDTO>> getAllMessages() {
@@ -71,9 +74,12 @@ public class MessageController {
         Conversation conversation = conversationService.getConversationById(messageDTO.getIdConversation())
                 .orElseThrow(() -> new RuntimeException("Conversation not found with id: " + messageDTO.getIdConversation()));
 
+        User author = userService.getUserById(messageDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("Author user not found with id: " + messageDTO.getUserId()));
+
         Message message = Message.builder()
                 .content(messageDTO.getContent())
-                .userId(messageDTO.getUserId())
+                .author(author)
                 .conversation(conversation)
                 .build();
 
@@ -88,7 +94,6 @@ public class MessageController {
         
         Message message = Message.builder()
                 .content(messageDTO.getContent())
-                .userId(messageDTO.getUserId())
                 .build();
 
         Message updatedMessage = messageService.updateMessage(id, message);
@@ -105,7 +110,7 @@ public class MessageController {
         return MessageDTO.builder()
                 .idMessage(message.getIdMessage())
                 .content(message.getContent())
-                .userId(message.getUserId())
+                .userId(message.getAuthor() != null ? message.getAuthor().getIdUser() : null)
                 .idConversation(message.getConversation() != null ? message.getConversation().getIdConversation() : null)
                 .createdAt(message.getCreatedAt())
                 .updatedAt(message.getUpdatedAt())
