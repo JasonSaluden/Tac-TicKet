@@ -56,20 +56,29 @@ export default function Tickets() {
   }, [categoryStore.state.categories])
 
   // Visibility rules:
-  // ADMIN → all tickets
-  // Others:
-  //   - OPEN tickets whose category is in user's specialties
-  //   - IN_PROGRESS/RESOLVED/CLOSED tickets they claimed (userAgentId = userId)
-  //   - Any ticket they created
+  // ADMIN  → all tickets
+  // AGENT  → unclaimed OPEN tickets (any category)
+  //        + all tickets in their specialty categories (any status/agent)
+  //        + tickets they claimed
+  // USER   → unclaimed OPEN tickets (status=OPEN, no agent)
+  //        + tickets they claimed
+  //        + tickets they created
   const visibleByRole = useMemo(() => {
     if (!user) return []
     if (user.role === 'ADMIN') return ticketStore.state.tickets
 
     return ticketStore.state.tickets.filter(t => {
-      if (t.userCreatorId === user.userId) return true
-      if (t.userAgentId === user.userId) return true
-      if (t.status === 'OPEN' && user.categoryIds.includes(t.idCategory)) return true
-      return false
+      const isUnclaimed = t.status === 'OPEN' && t.userAgentId == null
+      const isClaimed = t.userAgentId === user.userId
+      const isCreated = t.userCreatorId === user.userId
+
+      if (user.role === 'AGENT') {
+        const isInMyCategory = user.categoryIds.includes(t.idCategory)
+        return isUnclaimed || isClaimed || isInMyCategory
+      }
+
+      // USER
+      return isUnclaimed || isClaimed || isCreated
     })
   }, [ticketStore.state.tickets, user])
 
@@ -241,7 +250,7 @@ const STATUS_OPTIONS_SELECT = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as c
 
 function Row({ ticket, categoryName, user, onClaim, onStatusChange }: RowProps) {
   const isAdmin = user?.role === 'ADMIN'
-  const canClaim = ticket.status === 'OPEN' && !isAdmin && user != null
+  const canClaim = ticket.status === 'OPEN' && ticket.userAgentId == null && !isAdmin && user != null
 
   return (
     <tr className="border-t border-gray-100 hover:bg-gray-50">
