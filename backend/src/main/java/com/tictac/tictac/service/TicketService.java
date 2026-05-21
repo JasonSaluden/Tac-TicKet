@@ -59,12 +59,12 @@ public class TicketService {
     public Ticket updateTicket(Long id, Ticket ticketDetails) {
         return ticketRepository.findById(id)
                 .map(ticket -> {
-                    ticket.setTitle(ticketDetails.getTitle());
-                    ticket.setDescription(ticketDetails.getDescription());
-                    ticket.setStatus(ticketDetails.getStatus());
-                    ticket.setPriority(ticketDetails.getPriority());
-                    ticket.setAssignedAgent(ticketDetails.getAssignedAgent());
-                    ticket.setCategory(ticketDetails.getCategory());
+                    if (ticketDetails.getTitle() != null) ticket.setTitle(ticketDetails.getTitle());
+                    if (ticketDetails.getDescription() != null) ticket.setDescription(ticketDetails.getDescription());
+                    if (ticketDetails.getStatus() != null) ticket.setStatus(ticketDetails.getStatus());
+                    if (ticketDetails.getPriority() != null) ticket.setPriority(ticketDetails.getPriority());
+                    if (ticketDetails.getAssignedAgent() != null) ticket.setAssignedAgent(ticketDetails.getAssignedAgent());
+                    if (ticketDetails.getCategory() != null) ticket.setCategory(ticketDetails.getCategory());
                     return ticketRepository.save(ticket);
                 })
                 .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));
