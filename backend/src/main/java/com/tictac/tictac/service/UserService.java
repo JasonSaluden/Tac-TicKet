@@ -35,6 +35,14 @@ public class UserService {
         return userRepository.findCategoryIdsByUserId(userId);
     }
 
+    public List<Long> updateCategories(Long userId, List<Long> categoryIds) {
+        userRepository.deleteAllCategoriesByUserId(userId);
+        if (categoryIds != null) {
+            categoryIds.forEach(catId -> userRepository.insertUserCategory(userId, catId));
+        }
+        return userRepository.findCategoryIdsByUserId(userId);
+    }
+
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
