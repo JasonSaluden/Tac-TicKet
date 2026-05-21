@@ -1,56 +1,25 @@
 import { useAuth } from '../context/AuthContext'
-import { useState, useEffect } from 'react'
-import axios from 'axios'
-
-interface Ticket {
-  idTicket: number
-  title: string
-  status: string
-  priority: string
-  createdAt: string
-}
-
-interface Category {
-  idCategory: number
-  name: string
-}
+import { useEffect } from 'react'
+import { useTicketStore } from '../stores/ticket.store'
+import { useCategoryStore } from '../stores/category.store'
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
-  const [tickets, setTickets] = useState<Ticket[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
+  const ticketStore = useTicketStore()
+  const categoryStore = useCategoryStore()
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [ticketsRes, categoriesRes] = await Promise.all([
-          axios.get('http://localhost:8080/api/tickets', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          }),
-          axios.get('http://localhost:8080/api/categories', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          })
-        ])
-        setTickets(ticketsRes.data)
-        setCategories(categoriesRes.data)
-      } catch (error) {
-        console.error('Failed to fetch data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
+    ticketStore.getAllTickets()
+    categoryStore.getAllCategories()
   }, [])
 
   // Calculate statistics
   const stats = {
-    total: tickets.length,
-    open: tickets.filter(t => t.status === 'OPEN').length,
-    inProgress: tickets.filter(t => t.status === 'IN_PROGRESS').length,
-    resolved: tickets.filter(t => t.status === 'RESOLVED').length,
-    closed: tickets.filter(t => t.status === 'CLOSED').length
+    total: ticketStore.state.tickets.length,
+    open: ticketStore.state.tickets.filter(t => t.status === 'OPEN').length,
+    inProgress: ticketStore.state.tickets.filter(t => t.status === 'IN_PROGRESS').length,
+    resolved: ticketStore.state.tickets.filter(t => t.status === 'RESOLVED').length,
+    closed: ticketStore.state.tickets.filter(t => t.status === 'CLOSED').length
   }
 
   const getPriorityColor = (priority: string) => {
@@ -195,17 +164,17 @@ export default function Dashboard() {
                 </button>
               </div>
 
-              {loading ? (
+              {ticketStore.state.loading ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500">Loading tickets...</p>
                 </div>
-              ) : tickets.length === 0 ? (
+              ) : ticketStore.state.tickets.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500">No tickets yet. Create your first ticket! 🚀</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {tickets.slice(0, 5).map(ticket => (
+                  {ticketStore.state.tickets.slice(0, 5).map(ticket => (
                     <div
                       key={ticket.idTicket}
                       className={`border rounded-lg p-4 transition hover:shadow-md ${getStatusColor(ticket.status)}`}
@@ -238,17 +207,17 @@ export default function Dashboard() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-6">Categories</h3>
 
-              {loading ? (
+              {categoryStore.state.loading ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500 text-sm">Loading...</p>
                 </div>
-              ) : categories.length === 0 ? (
+              ) : categoryStore.state.categories.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500 text-sm">No categories yet</p>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {categories.map(category => (
+                  {categoryStore.state.categories.map(category => (
                     <button
                       key={category.idCategory}
                       className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition font-medium text-gray-900 text-sm"
