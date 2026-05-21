@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react'
 import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 import { CategoryModal } from '../components/CategoryModal'
+import { CreateTicketModal } from '../components/CreateTicketModal'
 
 export default function Dashboard() {
   const { user } = useAuth()
   const ticketStore = useTicketStore()
   const categoryStore = useCategoryStore()
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+  const [isCreateTicketOpen, setIsCreateTicketOpen] = useState(false)
 
   useEffect(() => {
     ticketStore.getAllTickets()
@@ -173,7 +175,10 @@ export default function Dashboard() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-2">
-                <button className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition text-sm">
+                <button
+                  onClick={() => setIsCreateTicketOpen(true)}
+                  className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition text-sm"
+                >
                   + Create Ticket
                 </button>
                 <button className="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition text-sm">
@@ -191,10 +196,14 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Category Modal */}
       <CategoryModal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
+      />
+      <CreateTicketModal
+        isOpen={isCreateTicketOpen}
+        onClose={() => setIsCreateTicketOpen(false)}
+        onSuccess={() => ticketStore.getAllTickets()}
       />
     </div>
   )

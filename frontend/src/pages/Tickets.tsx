@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 import { useAuth } from '../context/AuthContext'
+import { CreateTicketModal } from '../components/CreateTicketModal'
 import type { Ticket } from '../api/types'
 
 type SortKey = 'idTicket' | 'title' | 'status' | 'priority' | 'createdAt' | 'idCategory'
@@ -34,6 +35,7 @@ export default function Tickets() {
   const [priorityFilter, setPriorityFilter] = useState<string>('')
   const [sortKey, setSortKey] = useState<SortKey>('createdAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   useEffect(() => {
     ticketStore.getAllTickets()
@@ -115,7 +117,10 @@ export default function Tickets() {
             {user?.role === 'ADMIN' && ' · tous les tickets'}
           </p>
         </div>
-        <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition">
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
+        >
           + Nouveau ticket
         </button>
       </div>
@@ -180,6 +185,12 @@ export default function Tickets() {
           </table>
         </div>
       </div>
+
+      <CreateTicketModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => ticketStore.getAllTickets()}
+      />
     </div>
   )
 }
