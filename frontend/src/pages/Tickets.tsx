@@ -221,8 +221,8 @@ export default function Tickets() {
                     key={t.idTicket}
                     ticket={t}
                     categoryName={categoryMap.get(t.idCategory)}
-                    creatorName={userMap.get(t.userCreatorId)}
-                    agentName={t.userAgentId != null ? userMap.get(t.userAgentId) : undefined}
+                    creatorName={t.userCreatorName ?? userMap.get(t.userCreatorId)}
+                    agentName={t.userAgentName ?? (t.userAgentId != null ? userMap.get(t.userAgentId) : undefined)}
                     user={user}
                     onClaim={handleClaim}
                     onStatusChange={handleStatusChange}
