@@ -5,6 +5,7 @@ const links = [
   { to: '/tickets', label: 'Tickets', icon: '🎫' },
   { to: '/tickets/new', label: 'Nouveau ticket', icon: '➕' },
   { to: '/profile', label: 'Profil', icon: '👤' },
+  { to: '/admin', label: 'Admin', icon: '⚙️' },
 ]
 
 export default function Sidebar() {
@@ -17,10 +18,9 @@ export default function Sidebar() {
             to={to}
             end={to === '/dashboard'}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                isActive
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-gray-700 hover:bg-gray-100'
+              `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${isActive
+                ? 'bg-blue-50 text-blue-700'
+                : 'text-gray-700 hover:bg-gray-100'
               }`
             }
           >
