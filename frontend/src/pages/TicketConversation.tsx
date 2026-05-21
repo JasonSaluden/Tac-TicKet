@@ -87,7 +87,7 @@ export default function TicketConversation() {
 
   const userMap = useMemo(() => {
     const map = new Map<number, AuthUser>()
-    users.forEach(u => map.set(u.userId, u))
+    users.forEach(u => map.set(u.idUser, u))
     return map
   }, [users])
 
@@ -104,7 +104,7 @@ export default function TicketConversation() {
       const msg = await messageService.createMessage({
         content,
         idConversation: conversation.idConversation,
-        userId: user.userId,
+        userId: user.idUser,
       })
       setMessages(prev => [...prev, msg])
       setDraft('')
@@ -145,8 +145,8 @@ export default function TicketConversation() {
   const canPost =
     user != null &&
     (user.role === 'ADMIN' ||
-      user.userId === ticket.userCreatorId ||
-      user.userId === ticket.userAgentId)
+      user.idUser === ticket.userCreatorId ||
+      user.idUser === ticket.userAgentId)
 
   const isClosed = ticket.status === 'CLOSED'
 
@@ -193,7 +193,7 @@ export default function TicketConversation() {
           authorRole="Demandeur"
           content={ticket.description || ticket.title}
           date={ticket.createdAt}
-          mine={user?.userId === ticket.userCreatorId}
+          mine={user?.idUser === ticket.userCreatorId}
         />
         {messages
           .slice()
@@ -213,7 +213,7 @@ export default function TicketConversation() {
                 authorRole={role}
                 content={m.content}
                 date={m.createdAt}
-                mine={user?.userId === m.userId}
+                mine={user?.idUser === m.userId}
               />
             )
           })}
