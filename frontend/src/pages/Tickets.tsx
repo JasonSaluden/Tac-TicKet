@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 import { useAuth } from '../context/AuthContext'
 import { userService } from '../api/services'
 import type { Ticket, AuthUser } from '../api/types'
 import { CreateTicketModal } from '../components/CreateTicketModal'
-import { TicketDetailModal } from '../components/TicketDetailModal'
 
 type SortKey = 'idTicket' | 'title' | 'status' | 'priority' | 'createdAt' | 'idCategory'
 type SortDir = 'asc' | 'desc'
@@ -38,6 +38,7 @@ export default function Tickets() {
   const ticketStore = useTicketStore()
   const categoryStore = useCategoryStore()
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('')
@@ -46,7 +47,6 @@ export default function Tickets() {
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [users, setUsers] = useState<AuthUser[]>([])
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
 
   useEffect(() => {
     ticketStore.getAllTickets()
@@ -226,7 +226,7 @@ export default function Tickets() {
                     user={user}
                     onClaim={handleClaim}
                     onStatusChange={handleStatusChange}
-                    onView={setSelectedTicket}
+                    onView={(t) => navigate(`/tickets/${t.idTicket}`)}
                   />
                 ))
               )}
@@ -239,12 +239,6 @@ export default function Tickets() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={() => ticketStore.getAllTickets()}
-      />
-      <TicketDetailModal
-        ticket={selectedTicket}
-        isOpen={selectedTicket !== null}
-        onClose={() => setSelectedTicket(null)}
-        categoryName={selectedTicket ? categoryMap.get(selectedTicket.idCategory) : undefined}
       />
     </div>
   )
@@ -275,7 +269,12 @@ const STATUS_OPTIONS_SELECT = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as c
 
 function Row({ ticket, categoryName, creatorName, agentName, user, onClaim, onStatusChange, onView }: RowProps) {
   const isAdmin = user?.role === 'ADMIN'
-  const canClaim = ticket.status === 'OPEN' && ticket.userAgentId == null && !isAdmin && user != null
+  const canClaim =
+    ticket.status === 'OPEN' &&
+    ticket.userAgentId == null &&
+    !isAdmin &&
+    user != null &&
+    ticket.userCreatorId !== user.userId
 
   return (
     <tr className="border-t border-gray-100 hover:bg-gray-50">
