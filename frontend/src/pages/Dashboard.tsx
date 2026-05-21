@@ -35,8 +35,8 @@ export default function Dashboard() {
     if (user.role === 'ADMIN') return ticketStore.state.tickets
     return ticketStore.state.tickets.filter(t => {
       const isUnclaimed = t.status === 'OPEN' && t.userAgentId == null
-      const isClaimed = t.userAgentId === user.userId
-      const isCreated = t.userCreatorId === user.userId
+      const isClaimed = t.userAgentId === user.idUser
+      const isCreated = t.userCreatorId === user.idUser
       if (user.role === 'AGENT') return isUnclaimed || isClaimed || user.categoryIds.includes(t.idCategory)
       return isUnclaimed || isClaimed || isCreated
     })
