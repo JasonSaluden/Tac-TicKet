@@ -6,7 +6,6 @@ type Role = 'ADMIN' | 'AGENT' | 'USER'
 const links: { to: string; label: string; icon: string; roles?: Role[] }[] = [
   { to: '/dashboard', label: 'Dashboard', icon: '📊' },
   { to: '/tickets', label: 'Tickets', icon: '🎫' },
-  { to: '/tickets/new', label: 'Nouveau ticket', icon: '➕' },
   { to: '/profile', label: 'Profil', icon: '👤' },
   { to: '/admin', label: 'Admin', icon: '⚙️', roles: ['ADMIN'] },
 ]
