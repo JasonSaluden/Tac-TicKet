@@ -151,6 +151,12 @@ public class TicketController {
     }
 
     private TicketDTO convertToDTO(Ticket ticket) {
+        String creatorName = ticket.getCreator() != null
+                ? ticket.getCreator().getFirstName() + " " + ticket.getCreator().getLastName()
+                : null;
+        String agentName = ticket.getAssignedAgent() != null
+                ? ticket.getAssignedAgent().getFirstName() + " " + ticket.getAssignedAgent().getLastName()
+                : null;
         return TicketDTO.builder()
                 .idTicket(ticket.getIdTicket())
                 .title(ticket.getTitle())
@@ -160,7 +166,9 @@ public class TicketController {
                 .createdAt(ticket.getCreatedAt())
                 .updatedAt(ticket.getUpdatedAt())
                 .userCreatorId(ticket.getCreator() != null ? ticket.getCreator().getIdUser() : null)
+                .userCreatorName(creatorName)
                 .userAgentId(ticket.getAssignedAgent() != null ? ticket.getAssignedAgent().getIdUser() : null)
+                .userAgentName(agentName)
                 .idCategory(ticket.getCategory() != null ? ticket.getCategory().getIdCategory() : null)
                 .build();
     }

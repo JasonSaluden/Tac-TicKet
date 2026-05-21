@@ -20,6 +20,8 @@ public class TicketDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long userCreatorId;
+    private String userCreatorName;
     private Long userAgentId;
+    private String userAgentName;
     private Long idCategory;
 }

@@ -8,6 +8,7 @@ interface AuthUser {
   firstName: string
   lastName: string
   role: 'ADMIN' | 'AGENT' | 'USER'
+  categoryIds: number[]
 }
 
 interface AuthContextType {
@@ -28,7 +29,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (token) {
       api.get('/auth/me')
-        .then((res) => setUser(res.data))
+        .then((res) => setUser({
+          userId: res.data.idUser,
+          email: res.data.email,
+          firstName: res.data.firstName,
+          lastName: res.data.lastName,
+          role: res.data.role,
+          categoryIds: res.data.categoryIds ?? [],
+        }))
         .catch(() => logout())
     }
   }, [token])
@@ -43,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       firstName: res.data.firstName,
       lastName: res.data.lastName,
       role: res.data.role,
+      categoryIds: [],
     })
   }
 
@@ -56,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       firstName: res.data.firstName,
       lastName: res.data.lastName,
       role: res.data.role,
+      categoryIds: [],
     })
   }
 
