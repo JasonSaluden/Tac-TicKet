@@ -4,7 +4,7 @@ import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 
 export default function Dashboard() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const ticketStore = useTicketStore()
   const categoryStore = useCategoryStore()
 
@@ -43,44 +43,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">🎫</span>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Tac-TicKet</h1>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-semibold">
-                  {user?.firstName?.[0]}{user?.lastName?.[0]}
-                </span>
-              </div>
-              <div className="text-sm">
-                <p className="font-medium text-gray-900">
-                  {user?.firstName} {user?.lastName}
-                </p>
-                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-                  {user?.role}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={logout}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
+    <div className="max-w-7xl mx-auto">
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -248,6 +211,5 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
   )
 }

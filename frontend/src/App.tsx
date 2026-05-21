@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import Layout from './components/layout/Layout'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import OAuthCallback from './pages/OAuthCallback'
@@ -16,13 +17,14 @@ export default function App() {
           <Route path="/oauth2/callback" element={<OAuthCallback />} />
 
           <Route
-            path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Layout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/unauthorized" element={<div className="p-8 text-red-600">Access denied.</div>} />
