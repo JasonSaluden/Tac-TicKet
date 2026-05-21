@@ -275,13 +275,16 @@ function Row({ ticket, categoryName, creatorName, agentName, user, onClaim, onSt
     !isAdmin &&
     user != null &&
     ticket.userCreatorId !== user.userId
+  const isOwner = ticket.userAgentId === user?.userId
+  const canEditStatus = isAdmin || isOwner
+  const canClaim = ticket.status === 'OPEN' && ticket.userAgentId == null && !isAdmin && user != null
 
   return (
     <tr className="border-t border-gray-100 hover:bg-gray-50">
       <td className="px-4 py-3 text-gray-500">#{ticket.idTicket}</td>
       <td className="px-4 py-3 font-medium text-gray-900">{ticket.title}</td>
       <td className="px-4 py-3">
-        {isAdmin ? (
+        {canEditStatus ? (
           <select
             value={ticket.status}
             onChange={e => onStatusChange(ticket, e.target.value)}
