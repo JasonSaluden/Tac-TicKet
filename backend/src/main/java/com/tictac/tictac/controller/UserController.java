@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tictac.tictac.dto.UserDTO;
 import com.tictac.tictac.entity.RoleName;
 import com.tictac.tictac.entity.User;
+import com.tictac.tictac.repository.RoleRepository;
 import com.tictac.tictac.service.UserService;
 
 @RestController
@@ -27,6 +28,7 @@ import com.tictac.tictac.service.UserService;
 public class UserController {
 
     private final UserService userService;
+    private final RoleRepository roleRepository;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -57,18 +59,18 @@ public class UserController {
             @RequestBody UserDTO dto,
             @AuthenticationPrincipal User requester
     ) {
-        User updates = User.builder()
+        User.UserBuilder builder = User.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
-                .email(dto.getEmail())
-                .build();
+                .email(dto.getEmail());
 
         // Only admins can change roles
         if (dto.getRole() != null && requester.getRole().getName() == RoleName.ADMIN) {
-            // role update handled inside service if role entity is passed
+            RoleName roleName = RoleName.valueOf(dto.getRole());
+            roleRepository.findByName(roleName).ifPresent(builder::role);
         }
 
-        return ResponseEntity.ok(toDTO(userService.updateUser(id, updates)));
+        return ResponseEntity.ok(toDTO(userService.updateUser(id, builder.build())));
     }
 
     @DeleteMapping("/{id}")
