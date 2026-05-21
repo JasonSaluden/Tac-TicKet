@@ -69,13 +69,13 @@ export function TicketDetailModal({ ticket, isOpen, onClose, categoryName }: Pro
           </div>
           <div>
             <p className="text-gray-500 font-medium mb-1">Créé par</p>
-            <p className="text-gray-800">Utilisateur #{ticket.userCreatorId}</p>
+            <p className="text-gray-800">{ticket.userCreatorName ?? `Utilisateur #${ticket.userCreatorId}`}</p>
           </div>
           <div>
             <p className="text-gray-500 font-medium mb-1">Pris en charge par</p>
             {ticket.userAgentId ? (
               <div>
-                <p className="text-gray-800 font-medium">Utilisateur #{ticket.userAgentId}</p>
+                <p className="text-gray-800 font-medium">{ticket.userAgentName ?? `Utilisateur #${ticket.userAgentId}`}</p>
                 {claimedAt && (
                   <p className="text-xs text-gray-500">le {claimedAt}</p>
                 )}

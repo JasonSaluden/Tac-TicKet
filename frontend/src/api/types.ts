@@ -26,7 +26,9 @@ export interface Ticket {
     createdAt: string
     updatedAt: string
     userCreatorId: number
+    userCreatorName?: string
     userAgentId?: number
+    userAgentName?: string
     idCategory: number
 }
 
