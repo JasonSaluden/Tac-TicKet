@@ -310,7 +310,6 @@ function Row({ ticket, categoryName, creatorName, agentName, user, onClaim, onSt
       <td className="px-4 py-3 text-gray-700">
         {agentName ?? <span className="text-gray-400 italic">Non assigné</span>}
       </td>
-      <td className="px-4 py-3 text-gray-500">{new Date(ticket.createdAt).toLocaleDateString()}</td>
       <td className="px-4 py-3 text-gray-500">{new Date(ticket.createdAt).toLocaleDateString('fr-FR')}</td>
       <td className="px-4 py-3 text-right">
         <div className="flex items-center justify-end gap-2">
