@@ -1,18 +1,26 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
-const links = [
+type Role = 'ADMIN' | 'AGENT' | 'USER'
+
+const links: { to: string; label: string; icon: string; roles?: Role[] }[] = [
   { to: '/dashboard', label: 'Dashboard', icon: '📊' },
   { to: '/tickets', label: 'Tickets', icon: '🎫' },
-  { to: '/tickets/new', label: 'Nouveau ticket', icon: '➕' },
   { to: '/profile', label: 'Profil', icon: '👤' },
-  { to: '/admin', label: 'Admin', icon: '⚙️' },
+  { to: '/admin', label: 'Admin', icon: '⚙️', roles: ['ADMIN'] },
 ]
 
 export default function Sidebar() {
+  const { user } = useAuth()
+
+  const visibleLinks = links.filter(
+    l => !l.roles || (user && l.roles.includes(user.role)),
+  )
+
   return (
     <aside className="w-60 shrink-0 bg-white border-r border-gray-200">
       <nav className="p-4 space-y-1">
-        {links.map(({ to, label, icon }) => (
+        {visibleLinks.map(({ to, label, icon }) => (
           <NavLink
             key={to}
             to={to}

@@ -27,7 +27,14 @@ export default function App() {
           >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tickets" element={<Tickets />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

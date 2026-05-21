@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 import { useAuth } from '../context/AuthContext'
+import { userService } from '../api/services'
+import type { Ticket, AuthUser } from '../api/types'
 import { CreateTicketModal } from '../components/CreateTicketModal'
 import { TicketDetailModal } from '../components/TicketDetailModal'
-import type { Ticket } from '../api/types'
 
 type SortKey = 'idTicket' | 'title' | 'status' | 'priority' | 'createdAt' | 'idCategory'
 type SortDir = 'asc' | 'desc'
@@ -43,13 +44,21 @@ export default function Tickets() {
   const [priorityFilter, setPriorityFilter] = useState<string>('')
   const [sortKey, setSortKey] = useState<SortKey>('createdAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [users, setUsers] = useState<AuthUser[]>([])
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
 
   useEffect(() => {
     ticketStore.getAllTickets()
     categoryStore.getAllCategories()
+    userService.getAllUsers().then(setUsers).catch(() => setUsers([]))
   }, [])
+
+  const userMap = useMemo(() => {
+    const map = new Map<number, string>()
+    users.forEach(u => map.set(u.userId, `${u.firstName} ${u.lastName}`))
+    return map
+  }, [users])
 
   const categoryMap = useMemo(() => {
     const map = new Map<number, string>()
@@ -195,21 +204,25 @@ export default function Tickets() {
                 <Th onClick={() => toggleSort('status')} icon={sortIcon('status')}>Statut</Th>
                 <Th onClick={() => toggleSort('priority')} icon={sortIcon('priority')}>Priorité</Th>
                 <Th onClick={() => toggleSort('idCategory')} icon={sortIcon('idCategory')}>Catégorie</Th>
+                <th className="px-4 py-3 text-left font-semibold">Créé par</th>
+                <th className="px-4 py-3 text-left font-semibold">Agent</th>
                 <Th onClick={() => toggleSort('createdAt')} icon={sortIcon('createdAt')}>Créé le</Th>
                 <th className="px-4 py-3 text-right font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {ticketStore.state.loading ? (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-500">Chargement…</td></tr>
+                <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-500">Chargement…</td></tr>
               ) : sorted.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-500">Aucun ticket à afficher</td></tr>
+                <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-500">Aucun ticket à afficher</td></tr>
               ) : (
                 sorted.map(t => (
                   <Row
                     key={t.idTicket}
                     ticket={t}
                     categoryName={categoryMap.get(t.idCategory)}
+                    creatorName={userMap.get(t.userCreatorId)}
+                    agentName={t.userAgentId != null ? userMap.get(t.userAgentId) : undefined}
                     user={user}
                     onClaim={handleClaim}
                     onStatusChange={handleStatusChange}
@@ -250,6 +263,8 @@ function Th({ children, onClick, icon }: { children: React.ReactNode; onClick: (
 interface RowProps {
   ticket: Ticket
   categoryName?: string
+  creatorName?: string
+  agentName?: string
   user: { userId: number; role: string; categoryIds: number[] } | null
   onClaim: (ticket: Ticket) => void
   onStatusChange: (ticket: Ticket, status: string) => void
@@ -258,7 +273,7 @@ interface RowProps {
 
 const STATUS_OPTIONS_SELECT = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const
 
-function Row({ ticket, categoryName, user, onClaim, onStatusChange, onView }: RowProps) {
+function Row({ ticket, categoryName, creatorName, agentName, user, onClaim, onStatusChange, onView }: RowProps) {
   const isAdmin = user?.role === 'ADMIN'
   const isOwner = ticket.userAgentId === user?.userId
   const canEditStatus = isAdmin || isOwner
@@ -291,6 +306,11 @@ function Row({ ticket, categoryName, user, onClaim, onStatusChange, onView }: Ro
         </span>
       </td>
       <td className="px-4 py-3 text-gray-700">{categoryName ?? `#${ticket.idCategory}`}</td>
+      <td className="px-4 py-3 text-gray-700">{creatorName ?? `#${ticket.userCreatorId}`}</td>
+      <td className="px-4 py-3 text-gray-700">
+        {agentName ?? <span className="text-gray-400 italic">Non assigné</span>}
+      </td>
+      <td className="px-4 py-3 text-gray-500">{new Date(ticket.createdAt).toLocaleDateString()}</td>
       <td className="px-4 py-3 text-gray-500">{new Date(ticket.createdAt).toLocaleDateString('fr-FR')}</td>
       <td className="px-4 py-3 text-right">
         <div className="flex items-center justify-end gap-2">

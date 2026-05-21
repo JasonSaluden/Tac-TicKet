@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CategoryManagement } from '../components/CategoryManagement'
+import { UserManagement } from '../components/UserManagement'
 
 type TabType = 'tickets' | 'users' | 'categories'
 
@@ -81,20 +82,13 @@ export default function Admin() {
                     {/* Users Tab */}
                     {activeTab === 'users' && (
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                            <div className="text-center py-12">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-                                    <span className="text-3xl">👥</span>
-                                </div>
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-1">
                                     {tabs[1].label}
                                 </h2>
-                                <p className="text-gray-600 mb-8">{tabs[1].description}</p>
-                                <div className="bg-gray-50 rounded-lg p-8 border border-dashed border-gray-300">
-                                    <p className="text-gray-500">
-                                        Cette section est en cours de développement...
-                                    </p>
-                                </div>
+                                <p className="text-gray-600 text-sm">{tabs[1].description}</p>
                             </div>
+                            <UserManagement />
                         </div>
                     )}
 
