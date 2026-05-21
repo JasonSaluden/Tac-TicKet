@@ -56,7 +56,7 @@ export default function Tickets() {
 
   const userMap = useMemo(() => {
     const map = new Map<number, string>()
-    users.forEach(u => map.set(u.userId, `${u.firstName} ${u.lastName}`))
+    users.forEach(u => map.set(u.idUser, `${u.firstName} ${u.lastName}`))
     return map
   }, [users])
 
@@ -80,8 +80,8 @@ export default function Tickets() {
 
     return ticketStore.state.tickets.filter(t => {
       const isUnclaimed = t.status === 'OPEN' && t.userAgentId == null
-      const isClaimed = t.userAgentId === user.userId
-      const isCreated = t.userCreatorId === user.userId
+      const isClaimed = t.userAgentId === user.idUser
+      const isCreated = t.userCreatorId === user.idUser
 
       if (user.role === 'AGENT') {
         const isInMyCategory = user.categoryIds.includes(t.idCategory)
@@ -135,7 +135,7 @@ export default function Tickets() {
     if (!user) return
     await ticketStore.updateTicket(ticket.idTicket, {
       status: 'IN_PROGRESS',
-      userAgentId: user.userId,
+      userAgentId: user.idUser,
     })
   }
 
@@ -265,7 +265,7 @@ interface RowProps {
   categoryName?: string
   creatorName?: string
   agentName?: string
-  user: { userId: number; role: string; categoryIds: number[] } | null
+  user: { idUser: number; role: string; categoryIds: number[] } | null
   onClaim: (ticket: Ticket) => void
   onStatusChange: (ticket: Ticket, status: string) => void
   onView: (ticket: Ticket) => void

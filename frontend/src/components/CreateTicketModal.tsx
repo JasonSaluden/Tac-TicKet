@@ -44,7 +44,7 @@ export function CreateTicketModal({ isOpen, onClose, onSuccess }: Props) {
     e.preventDefault()
     if (!title.trim()) { setError('Le titre est obligatoire.'); return }
     if (idCategory === '') { setError('Veuillez sélectionner une catégorie.'); return }
-    if (!user?.userId) { setError('Utilisateur non identifié.'); return }
+    if (!user?.idUser) { setError('Utilisateur non identifié.'); return }
 
     setLoading(true)
     setError('')
@@ -55,7 +55,7 @@ export function CreateTicketModal({ isOpen, onClose, onSuccess }: Props) {
         priority,
         status: 'OPEN',
         idCategory: idCategory as number,
-        userCreatorId: user.userId,
+        userCreatorId: user.idUser,
       })
       onSuccess?.()
       onClose()

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import api from '../api/axios'
 
 interface AuthUser {
-  userId: number
+  idUser: number
   email: string
   firstName: string
   lastName: string
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (token) {
       api.get('/auth/me')
         .then((res) => setUser({
-          userId: res.data.idUser,
+          idUser: res.data.idUser,
           email: res.data.email,
           firstName: res.data.firstName,
           lastName: res.data.lastName,
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
     setUser({
-      userId: res.data.userId,
+      idUser: res.data.idUser,
       email: res.data.email,
       firstName: res.data.firstName,
       lastName: res.data.lastName,
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
     setUser({
-      userId: res.data.userId,
+      idUser: res.data.idUser,
       email: res.data.email,
       firstName: res.data.firstName,
       lastName: res.data.lastName,
