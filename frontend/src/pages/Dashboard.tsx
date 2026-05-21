@@ -1,5 +1,6 @@
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 import { CategoryModal } from '../components/CategoryModal'
@@ -7,6 +8,7 @@ import { CreateTicketModal } from '../components/CreateTicketModal'
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const ticketStore = useTicketStore()
   const categoryStore = useCategoryStore()
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
@@ -127,7 +129,10 @@ export default function Dashboard() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-900">Recent Tickets</h3>
-                <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                <button
+                  onClick={() => navigate('/tickets')}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                >
                   View all →
                 </button>
               </div>

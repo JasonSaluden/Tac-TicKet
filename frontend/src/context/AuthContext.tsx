@@ -8,6 +8,7 @@ interface AuthUser {
   firstName: string
   lastName: string
   role: 'ADMIN' | 'AGENT' | 'USER'
+  categoryIds: number[]
 }
 
 interface AuthContextType {
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           firstName: res.data.firstName,
           lastName: res.data.lastName,
           role: res.data.role,
+          categoryIds: res.data.categoryIds ?? [],
         }))
         .catch(() => logout())
     }
@@ -49,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       firstName: res.data.firstName,
       lastName: res.data.lastName,
       role: res.data.role,
+      categoryIds: [],
     })
   }
 
@@ -62,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       firstName: res.data.firstName,
       lastName: res.data.lastName,
       role: res.data.role,
+      categoryIds: [],
     })
   }
 
