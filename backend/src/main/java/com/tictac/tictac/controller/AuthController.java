@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.stream.Collectors;
-
 import com.tictac.tictac.dto.AuthResponse;
 import com.tictac.tictac.dto.LoginRequest;
 import com.tictac.tictac.dto.RegisterRequest;
@@ -40,19 +38,14 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserDTO> me(@AuthenticationPrincipal User principal) {
-        // Reload user in an active transaction so lazy collections (specialties) can be accessed
-        User user = userService.getUserById(principal.getIdUser())
-                .orElseThrow(() -> new RuntimeException("User not found"));
         UserDTO dto = UserDTO.builder()
-                .idUser(user.getIdUser())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .role(user.getRole().getName().name())
-                .createdAt(user.getCreatedAt())
-                .categoryIds(user.getSpecialties().stream()
-                        .map(c -> c.getIdCategory())
-                        .collect(Collectors.toList()))
+                .idUser(principal.getIdUser())
+                .firstName(principal.getFirstName())
+                .lastName(principal.getLastName())
+                .email(principal.getEmail())
+                .role(principal.getRole().getName().name())
+                .createdAt(principal.getCreatedAt())
+                .categoryIds(userService.getCategoryIds(principal.getIdUser()))
                 .build();
         return ResponseEntity.ok(dto);
     }

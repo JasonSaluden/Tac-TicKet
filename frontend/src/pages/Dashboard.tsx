@@ -19,13 +19,26 @@ export default function Dashboard() {
     categoryStore.getAllCategories()
   }, [])
 
+  // Apply same visibility rules as Tickets page
+  const visibleTickets = (() => {
+    if (!user) return []
+    if (user.role === 'ADMIN') return ticketStore.state.tickets
+    return ticketStore.state.tickets.filter(t => {
+      const isUnclaimed = t.status === 'OPEN' && t.userAgentId == null
+      const isClaimed = t.userAgentId === user.userId
+      const isCreated = t.userCreatorId === user.userId
+      if (user.role === 'AGENT') return isUnclaimed || isClaimed || user.categoryIds.includes(t.idCategory)
+      return isUnclaimed || isClaimed || isCreated
+    })
+  })()
+
   // Calculate statistics
   const stats = {
-    total: ticketStore.state.tickets.length,
-    open: ticketStore.state.tickets.filter(t => t.status === 'OPEN').length,
-    inProgress: ticketStore.state.tickets.filter(t => t.status === 'IN_PROGRESS').length,
-    resolved: ticketStore.state.tickets.filter(t => t.status === 'RESOLVED').length,
-    closed: ticketStore.state.tickets.filter(t => t.status === 'CLOSED').length
+    total: visibleTickets.length,
+    open: visibleTickets.filter(t => t.status === 'OPEN').length,
+    inProgress: visibleTickets.filter(t => t.status === 'IN_PROGRESS').length,
+    resolved: visibleTickets.filter(t => t.status === 'RESOLVED').length,
+    closed: visibleTickets.filter(t => t.status === 'CLOSED').length
   }
 
   const getPriorityColor = (priority: string) => {
@@ -141,13 +154,13 @@ export default function Dashboard() {
                 <div className="text-center py-8">
                   <p className="text-gray-500">Loading tickets...</p>
                 </div>
-              ) : ticketStore.state.tickets.length === 0 ? (
+              ) : visibleTickets.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500">No tickets yet. Create your first ticket! 🚀</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {ticketStore.state.tickets.slice(0, 5).map(ticket => (
+                  {visibleTickets.slice(0, 5).map(ticket => (
                     <div
                       key={ticket.idTicket}
                       className={`border rounded-lg p-4 transition hover:shadow-md ${getStatusColor(ticket.status)}`}

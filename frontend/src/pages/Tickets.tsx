@@ -3,6 +3,7 @@ import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 import { useAuth } from '../context/AuthContext'
 import { CreateTicketModal } from '../components/CreateTicketModal'
+import { TicketDetailModal } from '../components/TicketDetailModal'
 import type { Ticket } from '../api/types'
 
 type SortKey = 'idTicket' | 'title' | 'status' | 'priority' | 'createdAt' | 'idCategory'
@@ -43,6 +44,7 @@ export default function Tickets() {
   const [sortKey, setSortKey] = useState<SortKey>('createdAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
 
   useEffect(() => {
     ticketStore.getAllTickets()
@@ -211,6 +213,7 @@ export default function Tickets() {
                     user={user}
                     onClaim={handleClaim}
                     onStatusChange={handleStatusChange}
+                    onView={setSelectedTicket}
                   />
                 ))
               )}
@@ -223,6 +226,12 @@ export default function Tickets() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={() => ticketStore.getAllTickets()}
+      />
+      <TicketDetailModal
+        ticket={selectedTicket}
+        isOpen={selectedTicket !== null}
+        onClose={() => setSelectedTicket(null)}
+        categoryName={selectedTicket ? categoryMap.get(selectedTicket.idCategory) : undefined}
       />
     </div>
   )
@@ -244,11 +253,12 @@ interface RowProps {
   user: { userId: number; role: string; categoryIds: number[] } | null
   onClaim: (ticket: Ticket) => void
   onStatusChange: (ticket: Ticket, status: string) => void
+  onView: (ticket: Ticket) => void
 }
 
 const STATUS_OPTIONS_SELECT = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const
 
-function Row({ ticket, categoryName, user, onClaim, onStatusChange }: RowProps) {
+function Row({ ticket, categoryName, user, onClaim, onStatusChange, onView }: RowProps) {
   const isAdmin = user?.role === 'ADMIN'
   const canClaim = ticket.status === 'OPEN' && ticket.userAgentId == null && !isAdmin && user != null
 
@@ -290,7 +300,12 @@ function Row({ ticket, categoryName, user, onClaim, onStatusChange }: RowProps) 
               Prendre en charge
             </button>
           )}
-          <button className="text-blue-600 hover:text-blue-700 font-medium text-xs">Voir</button>
+          <button
+            onClick={() => onView(ticket)}
+            className="text-blue-600 hover:text-blue-700 font-medium text-xs"
+          >
+            Voir
+          </button>
         </div>
       </td>
     </tr>
