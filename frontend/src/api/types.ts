@@ -1,6 +1,6 @@
 // Auth Types
 export interface AuthUser {
-    userId: number
+    idUser: number
     email: string
     firstName: string
     lastName: string
@@ -9,7 +9,7 @@ export interface AuthUser {
 
 export interface LoginResponse {
     token: string
-    userId: number
+    idUser: number
     email: string
     firstName: string
     lastName: string

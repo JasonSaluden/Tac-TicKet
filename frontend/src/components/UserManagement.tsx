@@ -163,7 +163,7 @@ export function UserManagement() {
                             filtered.map(u => {
                                 const isEditing = editingId === u.idUser
                                 const isSaving = savingId === u.idUser
-                                const isSelf = currentUser?.userId === u.idUser
+                                const isSelf = currentUser?.idUser === u.idUser
                                 return (
                                     <tr key={u.idUser} className="border-t border-gray-100 hover:bg-gray-50">
                                         <td className="px-4 py-3 font-medium text-gray-900">
