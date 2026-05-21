@@ -16,6 +16,7 @@ import com.tictac.tictac.dto.RegisterRequest;
 import com.tictac.tictac.dto.UserDTO;
 import com.tictac.tictac.entity.User;
 import com.tictac.tictac.service.AuthService;
+import com.tictac.tictac.service.UserService;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,6 +24,7 @@ import com.tictac.tictac.service.AuthService;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -35,14 +37,15 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> me(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserDTO> me(@AuthenticationPrincipal User principal) {
         UserDTO dto = UserDTO.builder()
-                .idUser(user.getIdUser())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .role(user.getRole().getName().name())
-                .createdAt(user.getCreatedAt())
+                .idUser(principal.getIdUser())
+                .firstName(principal.getFirstName())
+                .lastName(principal.getLastName())
+                .email(principal.getEmail())
+                .role(principal.getRole().getName().name())
+                .createdAt(principal.getCreatedAt())
+                .categoryIds(userService.getCategoryIds(principal.getIdUser()))
                 .build();
         return ResponseEntity.ok(dto);
     }

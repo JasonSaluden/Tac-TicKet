@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 import { useAuth } from '../context/AuthContext'
+import { CreateTicketModal } from '../components/CreateTicketModal'
+import { TicketDetailModal } from '../components/TicketDetailModal'
 import type { Ticket } from '../api/types'
 
 type SortKey = 'idTicket' | 'title' | 'status' | 'priority' | 'createdAt' | 'idCategory'
@@ -9,6 +11,13 @@ type SortDir = 'asc' | 'desc'
 
 const STATUS_OPTIONS = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const
 const PRIORITY_OPTIONS = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const
+
+const STATUS_LABELS: Record<string, string> = {
+  OPEN: 'Ouvert',
+  IN_PROGRESS: 'En cours',
+  RESOLVED: 'Résolu',
+  CLOSED: 'Fermé',
+}
 
 const priorityBadge: Record<string, string> = {
   URGENT: 'bg-red-100 text-red-800',
@@ -34,6 +43,8 @@ export default function Tickets() {
   const [priorityFilter, setPriorityFilter] = useState<string>('')
   const [sortKey, setSortKey] = useState<SortKey>('createdAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
 
   useEffect(() => {
     ticketStore.getAllTickets()
@@ -46,19 +57,31 @@ export default function Tickets() {
     return map
   }, [categoryStore.state.categories])
 
+  // Visibility rules:
+  // ADMIN  → all tickets
+  // AGENT  → unclaimed OPEN tickets (any category)
+  //        + all tickets in their specialty categories (any status/agent)
+  //        + tickets they claimed
+  // USER   → unclaimed OPEN tickets (status=OPEN, no agent)
+  //        + tickets they claimed
+  //        + tickets they created
   const visibleByRole = useMemo(() => {
     if (!user) return []
-    switch (user.role) {
-      case 'ADMIN':
-        return ticketStore.state.tickets
-      case 'AGENT':
-        return ticketStore.state.tickets.filter(
-          t => t.userAgentId === user.userId || t.userAgentId == null,
-        )
-      case 'USER':
-      default:
-        return ticketStore.state.tickets.filter(t => t.userCreatorId === user.userId)
-    }
+    if (user.role === 'ADMIN') return ticketStore.state.tickets
+
+    return ticketStore.state.tickets.filter(t => {
+      const isUnclaimed = t.status === 'OPEN' && t.userAgentId == null
+      const isClaimed = t.userAgentId === user.userId
+      const isCreated = t.userCreatorId === user.userId
+
+      if (user.role === 'AGENT') {
+        const isInMyCategory = user.categoryIds.includes(t.idCategory)
+        return isUnclaimed || isClaimed || isInMyCategory
+      }
+
+      // USER
+      return isUnclaimed || isClaimed || isCreated
+    })
   }, [ticketStore.state.tickets, user])
 
   const filtered = useMemo(() => {
@@ -66,7 +89,7 @@ export default function Tickets() {
     return visibleByRole.filter(t => {
       if (statusFilter && t.status !== statusFilter) return false
       if (priorityFilter && t.priority !== priorityFilter) return false
-      if (term && !t.title.toLowerCase().includes(term) && !t.description.toLowerCase().includes(term)) return false
+      if (term && !t.title.toLowerCase().includes(term) && !(t.description ?? '').toLowerCase().includes(term)) return false
       return true
     })
   }, [visibleByRole, search, statusFilter, priorityFilter])
@@ -84,12 +107,8 @@ export default function Tickets() {
   }, [filtered, sortKey, sortDir])
 
   const toggleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir(sortDir === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortKey(key)
-      setSortDir('asc')
-    }
+    if (sortKey === key) setSortDir(sortDir === 'asc' ? 'desc' : 'asc')
+    else { setSortKey(key); setSortDir('asc') }
   }
 
   const sortIcon = (key: SortKey) => {
@@ -103,6 +122,18 @@ export default function Tickets() {
     setPriorityFilter('')
   }
 
+  const handleClaim = async (ticket: Ticket) => {
+    if (!user) return
+    await ticketStore.updateTicket(ticket.idTicket, {
+      status: 'IN_PROGRESS',
+      userAgentId: user.userId,
+    })
+  }
+
+  const handleStatusChange = async (ticket: Ticket, newStatus: string) => {
+    await ticketStore.updateTicket(ticket.idTicket, { status: newStatus })
+  }
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-6 flex items-end justify-between gap-4 flex-wrap">
@@ -110,12 +141,15 @@ export default function Tickets() {
           <h2 className="text-2xl font-bold text-gray-900">Tickets</h2>
           <p className="text-sm text-gray-600">
             {sorted.length} ticket{sorted.length > 1 ? 's' : ''} affiché{sorted.length > 1 ? 's' : ''}
-            {user?.role === 'USER' && ' · mes tickets'}
+            {user?.role === 'USER' && ' · mes tickets et catégories'}
             {user?.role === 'AGENT' && ' · tickets assignés ou non attribués'}
             {user?.role === 'ADMIN' && ' · tous les tickets'}
           </p>
         </div>
-        <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition">
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
+        >
           + Nouveau ticket
         </button>
       </div>
@@ -135,7 +169,7 @@ export default function Tickets() {
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Tous les statuts</option>
-            {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+            {STATUS_OPTIONS.map(s => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
           </select>
           <select
             value={priorityFilter}
@@ -146,10 +180,7 @@ export default function Tickets() {
             {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
           {(search || statusFilter || priorityFilter) && (
-            <button
-              onClick={resetFilters}
-              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900"
-            >
+            <button onClick={resetFilters} className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900">
               Réinitialiser
             </button>
           )}
@@ -174,12 +205,34 @@ export default function Tickets() {
               ) : sorted.length === 0 ? (
                 <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-500">Aucun ticket à afficher</td></tr>
               ) : (
-                sorted.map(t => <Row key={t.idTicket} ticket={t} categoryName={categoryMap.get(t.idCategory)} />)
+                sorted.map(t => (
+                  <Row
+                    key={t.idTicket}
+                    ticket={t}
+                    categoryName={categoryMap.get(t.idCategory)}
+                    user={user}
+                    onClaim={handleClaim}
+                    onStatusChange={handleStatusChange}
+                    onView={setSelectedTicket}
+                  />
+                ))
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      <CreateTicketModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => ticketStore.getAllTickets()}
+      />
+      <TicketDetailModal
+        ticket={selectedTicket}
+        isOpen={selectedTicket !== null}
+        onClose={() => setSelectedTicket(null)}
+        categoryName={selectedTicket ? categoryMap.get(selectedTicket.idCategory) : undefined}
+      />
     </div>
   )
 }
@@ -194,15 +247,41 @@ function Th({ children, onClick, icon }: { children: React.ReactNode; onClick: (
   )
 }
 
-function Row({ ticket, categoryName }: { ticket: Ticket; categoryName?: string }) {
+interface RowProps {
+  ticket: Ticket
+  categoryName?: string
+  user: { userId: number; role: string; categoryIds: number[] } | null
+  onClaim: (ticket: Ticket) => void
+  onStatusChange: (ticket: Ticket, status: string) => void
+  onView: (ticket: Ticket) => void
+}
+
+const STATUS_OPTIONS_SELECT = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const
+
+function Row({ ticket, categoryName, user, onClaim, onStatusChange, onView }: RowProps) {
+  const isAdmin = user?.role === 'ADMIN'
+  const canClaim = ticket.status === 'OPEN' && ticket.userAgentId == null && !isAdmin && user != null
+
   return (
     <tr className="border-t border-gray-100 hover:bg-gray-50">
       <td className="px-4 py-3 text-gray-500">#{ticket.idTicket}</td>
       <td className="px-4 py-3 font-medium text-gray-900">{ticket.title}</td>
       <td className="px-4 py-3">
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusBadge[ticket.status] ?? 'bg-gray-100 text-gray-800'}`}>
-          {ticket.status}
-        </span>
+        {isAdmin ? (
+          <select
+            value={ticket.status}
+            onChange={e => onStatusChange(ticket, e.target.value)}
+            className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 ${statusBadge[ticket.status] ?? 'bg-gray-100 text-gray-800'}`}
+          >
+            {STATUS_OPTIONS_SELECT.map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        ) : (
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusBadge[ticket.status] ?? 'bg-gray-100 text-gray-800'}`}>
+            {ticket.status}
+          </span>
+        )}
       </td>
       <td className="px-4 py-3">
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityBadge[ticket.priority] ?? 'bg-gray-100 text-gray-800'}`}>
@@ -210,9 +289,24 @@ function Row({ ticket, categoryName }: { ticket: Ticket; categoryName?: string }
         </span>
       </td>
       <td className="px-4 py-3 text-gray-700">{categoryName ?? `#${ticket.idCategory}`}</td>
-      <td className="px-4 py-3 text-gray-500">{new Date(ticket.createdAt).toLocaleDateString()}</td>
+      <td className="px-4 py-3 text-gray-500">{new Date(ticket.createdAt).toLocaleDateString('fr-FR')}</td>
       <td className="px-4 py-3 text-right">
-        <button className="text-blue-600 hover:text-blue-700 font-medium">Voir</button>
+        <div className="flex items-center justify-end gap-2">
+          {canClaim && (
+            <button
+              onClick={() => onClaim(ticket)}
+              className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition"
+            >
+              Prendre en charge
+            </button>
+          )}
+          <button
+            onClick={() => onView(ticket)}
+            className="text-blue-600 hover:text-blue-700 font-medium text-xs"
+          >
+            Voir
+          </button>
+        </div>
       </td>
     </tr>
   )

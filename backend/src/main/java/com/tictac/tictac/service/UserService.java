@@ -31,6 +31,10 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public List<Long> getCategoryIds(Long userId) {
+        return userRepository.findCategoryIdsByUserId(userId);
+    }
+
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
