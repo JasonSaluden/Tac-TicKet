@@ -1,10 +1,12 @@
 import { useAuth } from '../context/AuthContext'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 import { CategoryModal } from '../components/CategoryModal'
 import { CreateTicketModal } from '../components/CreateTicketModal'
+import { userService } from '../api/services'
+import type { AuthUser } from '../api/types'
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -13,11 +15,19 @@ export default function Dashboard() {
   const categoryStore = useCategoryStore()
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
   const [isCreateTicketOpen, setIsCreateTicketOpen] = useState(false)
+  const [users, setUsers] = useState<AuthUser[]>([])
 
   useEffect(() => {
     ticketStore.getAllTickets()
     categoryStore.getAllCategories()
+    userService.getAllUsers().then(setUsers).catch(() => setUsers([]))
   }, [])
+
+  const userMap = useMemo(() => {
+    const map = new Map<number, string>()
+    users.forEach(u => map.set(u.userId, `${u.firstName} ${u.lastName}`))
+    return map
+  }, [users])
 
   // Apply same visibility rules as Tickets page
   const visibleTickets = (() => {
@@ -168,9 +178,12 @@ export default function Dashboard() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <p className="font-medium text-gray-900 mb-1">{ticket.title}</p>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className={`text-xs px-2 py-1 rounded-full font-medium ${getPriorityColor(ticket.priority)}`}>
                               {ticket.priority}
+                            </span>
+                            <span className="text-xs text-gray-600">
+                              par {userMap.get(ticket.userCreatorId) ?? ticket.userCreatorName ?? `#${ticket.userCreatorId}`}
                             </span>
                             <span className="text-xs text-gray-500">
                               {new Date(ticket.createdAt).toLocaleDateString()}
