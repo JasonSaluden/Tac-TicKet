@@ -260,20 +260,11 @@ function Th({ children, onClick, icon }: { children: React.ReactNode; onClick: (
   )
 }
 
-function Row({
-  ticket,
-  categoryName,
-  creatorName,
-  agentName,
-}: {
+interface RowProps {
   ticket: Ticket
   categoryName?: string
   creatorName?: string
   agentName?: string
-}) {
-interface RowProps {
-  ticket: Ticket
-  categoryName?: string
   user: { userId: number; role: string; categoryIds: number[] } | null
   onClaim: (ticket: Ticket) => void
   onStatusChange: (ticket: Ticket, status: string) => void
@@ -282,7 +273,7 @@ interface RowProps {
 
 const STATUS_OPTIONS_SELECT = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const
 
-function Row({ ticket, categoryName, user, onClaim, onStatusChange, onView }: RowProps) {
+function Row({ ticket, categoryName, creatorName, agentName, user, onClaim, onStatusChange, onView }: RowProps) {
   const isAdmin = user?.role === 'ADMIN'
   const canClaim = ticket.status === 'OPEN' && ticket.userAgentId == null && !isAdmin && user != null
 
