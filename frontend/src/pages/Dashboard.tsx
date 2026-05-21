@@ -1,12 +1,14 @@
 import { useAuth } from '../context/AuthContext'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
+import { CategoryModal } from '../components/CategoryModal'
 
 export default function Dashboard() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const ticketStore = useTicketStore()
   const categoryStore = useCategoryStore()
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
 
   useEffect(() => {
     ticketStore.getAllTickets()
@@ -43,43 +45,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">🎫</span>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Tac-TicKet</h1>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-semibold">
-                  {user?.firstName?.[0]}{user?.lastName?.[0]}
-                </span>
-              </div>
-              <div className="text-sm">
-                <p className="font-medium text-gray-900">
-                  {user?.firstName} {user?.lastName}
-                </p>
-                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-                  {user?.role}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={logout}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
+    <div>
       <div className="max-w-7xl mx-auto px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -202,39 +168,9 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Categories */}
+          {/* Quick Actions & Manage Categories */}
           <div>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-6">Categories</h3>
-
-              {categoryStore.state.loading ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 text-sm">Loading...</p>
-                </div>
-              ) : categoryStore.state.categories.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 text-sm">No categories yet</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {categoryStore.state.categories.map(category => (
-                    <button
-                      key={category.idCategory}
-                      className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition font-medium text-gray-900 text-sm"
-                    >
-                      {category.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <button className="w-full mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
-                + New Category
-              </button>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-2">
                 <button className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition text-sm">
@@ -243,11 +179,23 @@ export default function Dashboard() {
                 <button className="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition text-sm">
                   View Reports
                 </button>
+                <button
+                  onClick={() => setIsCategoryModalOpen(true)}
+                  className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm"
+                >
+                  + New Category
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Category Modal */}
+      <CategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+      />
     </div>
   )
 }
