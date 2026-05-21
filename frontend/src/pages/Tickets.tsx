@@ -51,8 +51,10 @@ export default function Tickets() {
   useEffect(() => {
     ticketStore.getAllTickets()
     categoryStore.getAllCategories()
-    userService.getAllUsers().then(setUsers).catch(() => setUsers([]))
-  }, [])
+    if (user?.role === 'ADMIN') {
+      userService.getAllUsers().then(setUsers).catch(() => setUsers([]))
+    }
+  }, [user?.role])
 
   const userMap = useMemo(() => {
     const map = new Map<number, string>()

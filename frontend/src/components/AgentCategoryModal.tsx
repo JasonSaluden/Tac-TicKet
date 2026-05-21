@@ -4,14 +4,15 @@ import { userService } from '../api/services'
 import { useAuth } from '../context/AuthContext'
 
 export function AgentCategoryModal() {
-  const { user, refreshUser } = useAuth()
+  const { user, userLoaded, refreshUser } = useAuth()
   const categoryStore = useCategoryStore()
 
   const [selected, setSelected] = useState<number[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const isOpen = user?.role === 'AGENT' && user.categoryIds.length === 0
+  // Only show once the real profile is loaded from /auth/me, not during the brief initial [] state
+  const isOpen = userLoaded && user?.role === 'AGENT' && user.categoryIds.length === 0
 
   useEffect(() => {
     if (isOpen) {

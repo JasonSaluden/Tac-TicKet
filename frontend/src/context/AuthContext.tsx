@@ -14,6 +14,7 @@ interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null
   token: string | null
+  userLoaded: boolean
   login: (email: string, password: string) => Promise<void>
   register: (firstName: string, lastName: string, email: string, password: string) => Promise<void>
   logout: () => void
@@ -37,10 +38,12 @@ function mapUser(data: Record<string, unknown>): AuthUser {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [userLoaded, setUserLoaded] = useState(false)
 
   const refreshUser = useCallback(async () => {
     const res = await api.get('/auth/me')
     setUser(mapUser(res.data))
+    setUserLoaded(true)
   }, [])
 
   useEffect(() => {
@@ -67,10 +70,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('token')
     setToken(null)
     setUser(null)
+    setUserLoaded(false)
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, refreshUser, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, userLoaded, login, register, logout, refreshUser, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   )
