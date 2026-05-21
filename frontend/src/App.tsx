@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import OAuthCallback from './pages/OAuthCallback'
 import Dashboard from './pages/Dashboard'
+import Tickets from './pages/Tickets'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
             }
           >
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tickets" element={<Tickets />} />
           </Route>
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
