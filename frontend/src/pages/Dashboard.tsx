@@ -25,7 +25,7 @@ export default function Dashboard() {
 
   const userMap = useMemo(() => {
     const map = new Map<number, string>()
-    users.forEach(u => map.set(u.userId, `${u.firstName} ${u.lastName}`))
+    users.forEach(u => map.set(u.idUser, `${u.firstName} ${u.lastName}`))
     return map
   }, [users])
 

@@ -274,10 +274,9 @@ function Row({ ticket, categoryName, creatorName, agentName, user, onClaim, onSt
     ticket.userAgentId == null &&
     !isAdmin &&
     user != null &&
-    ticket.userCreatorId !== user.userId
-  const isOwner = ticket.userAgentId === user?.userId
+    ticket.userCreatorId !== user.idUser
+  const isOwner = ticket.userAgentId === user?.idUser
   const canEditStatus = isAdmin || isOwner
-  const canClaim = ticket.status === 'OPEN' && ticket.userAgentId == null && !isAdmin && user != null
 
   return (
     <tr className="border-t border-gray-100 hover:bg-gray-50">
