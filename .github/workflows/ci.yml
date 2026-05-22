@@ -61,7 +61,12 @@ jobs:
 
       - name: Build backend with Maven
         working-directory: backend
-        run: mvn clean package -DskipTests
+        run: mvn clean package
+
+      - name: Run Java tests
+        working-directory: backend
+        run: mvn test
+        continue-on-error: true
 
       - name: Build Docker images
         run: docker compose build --no-cache
