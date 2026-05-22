@@ -480,12 +480,3 @@ docker compose build --no-cache
 docker compose up
 ```
 
----
-
-## 📄 Licence
-
-[À compléter selon votre licence]
-
----
-
-**Créé avec ❤️ par [Votre équipe]**
