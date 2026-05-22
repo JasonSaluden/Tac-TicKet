@@ -35,7 +35,7 @@ export default function Header() {
               onClick={logout}
               className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition"
             >
-              Sign out
+              Se déconnecter
             </button>
           </div>
         )}
