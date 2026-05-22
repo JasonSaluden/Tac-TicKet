@@ -45,6 +45,10 @@ class UserService {
             currentPassword,
             newPassword,
         })
+     * Update agent categories
+     */
+    async updateCategories(id: number, categoryIds: number[]): Promise<number[]> {
+        const response = await api.patch<number[]>(`/users/${id}/categories`, { categoryIds })
         return response.data
     }
 

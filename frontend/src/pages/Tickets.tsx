@@ -51,8 +51,10 @@ export default function Tickets() {
   useEffect(() => {
     ticketStore.getAllTickets()
     categoryStore.getAllCategories()
-    userService.getAllUsers().then(setUsers).catch(() => setUsers([]))
-  }, [])
+    if (user?.role === 'ADMIN') {
+      userService.getAllUsers().then(setUsers).catch(() => setUsers([]))
+    }
+  }, [user?.role])
 
   const userMap = useMemo(() => {
     const map = new Map<number, string>()
@@ -221,8 +223,8 @@ export default function Tickets() {
                     key={t.idTicket}
                     ticket={t}
                     categoryName={categoryMap.get(t.idCategory)}
-                    creatorName={userMap.get(t.userCreatorId)}
-                    agentName={t.userAgentId != null ? userMap.get(t.userAgentId) : undefined}
+                    creatorName={t.userCreatorName ?? userMap.get(t.userCreatorId)}
+                    agentName={t.userAgentName ?? (t.userAgentId != null ? userMap.get(t.userAgentId) : undefined)}
                     user={user}
                     onClaim={handleClaim}
                     onStatusChange={handleStatusChange}

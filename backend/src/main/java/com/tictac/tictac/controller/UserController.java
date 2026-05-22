@@ -1,12 +1,14 @@
 package com.tictac.tictac.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,6 +77,15 @@ public class UserController {
         return ResponseEntity.ok(toDTO(userService.updateUser(id, builder.build())));
     }
 
+    @PatchMapping("/{id}/categories")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.idUser")
+    public ResponseEntity<List<Long>> updateCategories(
+            @PathVariable Long id,
+            @RequestBody Map<String, List<Long>> body) {
+        List<Long> updated = userService.updateCategories(id, body.get("categoryIds"));
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
@@ -100,6 +111,7 @@ public class UserController {
                 .role(user.getRole().getName().name())
                 .oauthProvider(user.getOauthProvider())
                 .createdAt(user.getCreatedAt())
+                .categoryIds(userService.getCategoryIds(user.getIdUser()))
                 .build();
     }
 }

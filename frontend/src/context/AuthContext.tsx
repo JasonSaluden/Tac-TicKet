@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import type { ReactNode } from 'react'
 import api from '../api/axios'
 
@@ -15,6 +15,7 @@ interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null
   token: string | null
+  userLoaded: boolean
   login: (email: string, password: string) => Promise<void>
   register: (firstName: string, lastName: string, email: string, password: string) => Promise<void>
   logout: () => void
@@ -24,9 +25,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+function mapUser(data: Record<string, unknown>): AuthUser {
+  return {
+    idUser: data.idUser as number,
+    email: data.email as string,
+    firstName: data.firstName as string,
+    lastName: data.lastName as string,
+    role: data.role as AuthUser['role'],
+    categoryIds: (data.categoryIds as number[]) ?? [],
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [userLoaded, setUserLoaded] = useState(false)
+
+  const refreshUser = useCallback(async () => {
+    const res = await api.get('/auth/me')
+    setUser(mapUser(res.data))
+    setUserLoaded(true)
+  }, [])
 
   useEffect(() => {
     if (token) {
@@ -41,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           categoryIds: res.data.categoryIds ?? [],
         }))
         .catch(() => logout())
+      refreshUser().catch(() => logout())
     }
   }, [token])
 
@@ -57,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       oauthProvider: res.data.oauthProvider,
       categoryIds: [],
     })
+    setUser({ ...mapUser(res.data), categoryIds: [] })
   }
 
   const register = async (firstName: string, lastName: string, email: string, password: string) => {
@@ -72,12 +93,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       oauthProvider: res.data.oauthProvider,
       categoryIds: [],
     })
+    setUser({ ...mapUser(res.data), categoryIds: [] })
   }
 
   const logout = () => {
     localStorage.removeItem('token')
     setToken(null)
     setUser(null)
+    setUserLoaded(false)
   }
 
   const refreshUser = async () => {

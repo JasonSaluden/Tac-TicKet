@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { userService } from '../api/services'
+import { useCategoryStore } from '../stores/category.store'
 import { useAuth } from '../context/AuthContext'
+import { Modal } from './ui/Modal'
 
 type Role = 'ADMIN' | 'AGENT' | 'USER'
 
@@ -11,6 +13,7 @@ interface AdminUser {
     email: string
     role: Role
     createdAt: string
+    categoryIds?: number[]
 }
 
 const ROLES: Role[] = ['ADMIN', 'AGENT', 'USER']
@@ -23,6 +26,7 @@ const roleBadge: Record<Role, string> = {
 
 export function UserManagement() {
     const { user: currentUser } = useAuth()
+    const categoryStore = useCategoryStore()
 
     const [users, setUsers] = useState<AdminUser[]>([])
     const [loading, setLoading] = useState(false)
@@ -32,6 +36,12 @@ export function UserManagement() {
     const [editingId, setEditingId] = useState<number | null>(null)
     const [editingRole, setEditingRole] = useState<Role>('USER')
     const [savingId, setSavingId] = useState<number | null>(null)
+
+    // Category editing state
+    const [categoryEditingUser, setCategoryEditingUser] = useState<AdminUser | null>(null)
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([])
+    const [savingCategories, setSavingCategories] = useState(false)
+    const [categoryError, setCategoryError] = useState('')
 
     const fetchUsers = useCallback(async () => {
         try {
@@ -48,6 +58,7 @@ export function UserManagement() {
 
     useEffect(() => {
         fetchUsers()
+        categoryStore.getAllCategories()
     }, [fetchUsers])
 
     const startEdit = (u: AdminUser) => {
@@ -55,9 +66,7 @@ export function UserManagement() {
         setEditingRole(u.role)
     }
 
-    const cancelEdit = () => {
-        setEditingId(null)
-    }
+    const cancelEdit = () => setEditingId(null)
 
     const saveRole = async (u: AdminUser) => {
         try {
@@ -89,6 +98,37 @@ export function UserManagement() {
             setError(e instanceof Error ? e.message : 'Erreur lors de la suppression')
         } finally {
             setSavingId(null)
+        }
+    }
+
+    const openCategoryEdit = (u: AdminUser) => {
+        setCategoryEditingUser(u)
+        setSelectedCategoryIds(u.categoryIds ?? [])
+        setCategoryError('')
+    }
+
+    const toggleCategory = (id: number) => {
+        setSelectedCategoryIds(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        )
+    }
+
+    const saveCategories = async () => {
+        if (!categoryEditingUser) return
+        setSavingCategories(true)
+        setCategoryError('')
+        try {
+            await userService.updateCategories(categoryEditingUser.idUser, selectedCategoryIds)
+            setUsers(prev => prev.map(u =>
+                u.idUser === categoryEditingUser.idUser
+                    ? { ...u, categoryIds: selectedCategoryIds }
+                    : u
+            ))
+            setCategoryEditingUser(null)
+        } catch (e) {
+            setCategoryError(e instanceof Error ? e.message : 'Erreur lors de la mise à jour')
+        } finally {
+            setSavingCategories(false)
         }
     }
 
@@ -150,20 +190,24 @@ export function UserManagement() {
                             <th className="px-4 py-3 text-left font-semibold">Nom</th>
                             <th className="px-4 py-3 text-left font-semibold">Email</th>
                             <th className="px-4 py-3 text-left font-semibold">Rôle</th>
+                            <th className="px-4 py-3 text-left font-semibold">Catégories</th>
                             <th className="px-4 py-3 text-left font-semibold">Créé le</th>
                             <th className="px-4 py-3 text-right font-semibold">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan={5} className="px-4 py-12 text-center text-gray-500">Chargement…</td></tr>
+                            <tr><td colSpan={6} className="px-4 py-12 text-center text-gray-500">Chargement…</td></tr>
                         ) : filtered.length === 0 ? (
-                            <tr><td colSpan={5} className="px-4 py-12 text-center text-gray-500">Aucun utilisateur</td></tr>
+                            <tr><td colSpan={6} className="px-4 py-12 text-center text-gray-500">Aucun utilisateur</td></tr>
                         ) : (
                             filtered.map(u => {
                                 const isEditing = editingId === u.idUser
                                 const isSaving = savingId === u.idUser
                                 const isSelf = currentUser?.idUser === u.idUser
+                                const catNames = (u.categoryIds ?? [])
+                                    .map(id => categoryStore.state.categories.find(c => c.idCategory === id)?.name)
+                                    .filter(Boolean)
                                 return (
                                     <tr key={u.idUser} className="border-t border-gray-100 hover:bg-gray-50">
                                         <td className="px-4 py-3 font-medium text-gray-900">
@@ -187,8 +231,17 @@ export function UserManagement() {
                                                 </span>
                                             )}
                                         </td>
+                                        <td className="px-4 py-3 text-gray-600">
+                                            {u.role === 'AGENT' ? (
+                                                catNames.length > 0
+                                                    ? <span className="text-xs">{catNames.join(', ')}</span>
+                                                    : <span className="text-xs text-orange-500 italic">Aucune</span>
+                                            ) : (
+                                                <span className="text-xs text-gray-300">—</span>
+                                            )}
+                                        </td>
                                         <td className="px-4 py-3 text-gray-500">
-                                            {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}
+                                            {u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR') : '—'}
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             {isEditing ? (
@@ -198,14 +251,14 @@ export function UserManagement() {
                                                         disabled={isSaving || editingRole === u.role}
                                                         className="px-3 py-1 text-xs font-medium text-green-600 hover:bg-green-50 rounded disabled:text-gray-400 disabled:cursor-not-allowed"
                                                     >
-                                                        ✅ Enregistrer
+                                                        Enregistrer
                                                     </button>
                                                     <button
                                                         onClick={cancelEdit}
                                                         disabled={isSaving}
                                                         className="px-3 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 rounded"
                                                     >
-                                                        ❌ Annuler
+                                                        Annuler
                                                     </button>
                                                 </div>
                                             ) : (
@@ -215,15 +268,24 @@ export function UserManagement() {
                                                         disabled={isSaving}
                                                         className="px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded"
                                                     >
-                                                        ✏️ Rôle
+                                                        Rôle
                                                     </button>
+                                                    {u.role === 'AGENT' && (
+                                                        <button
+                                                            onClick={() => openCategoryEdit(u)}
+                                                            disabled={isSaving}
+                                                            className="px-3 py-1 text-xs font-medium text-purple-600 hover:bg-purple-50 rounded"
+                                                        >
+                                                            Catégories
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => deleteUser(u)}
                                                         disabled={isSaving || isSelf}
                                                         title={isSelf ? 'Impossible de supprimer son propre compte' : 'Supprimer'}
                                                         className="px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded disabled:text-gray-400 disabled:cursor-not-allowed"
                                                     >
-                                                        🗑️ Supprimer
+                                                        Supprimer
                                                     </button>
                                                 </div>
                                             )}
@@ -235,6 +297,52 @@ export function UserManagement() {
                     </tbody>
                 </table>
             </div>
+
+            {/* Category edit modal */}
+            <Modal
+                isOpen={categoryEditingUser !== null}
+                onClose={() => setCategoryEditingUser(null)}
+                title={`Catégories — ${categoryEditingUser?.firstName} ${categoryEditingUser?.lastName}`}
+                description="Sélectionnez les catégories dont cet agent est responsable."
+                size="sm"
+            >
+                {categoryError && (
+                    <div className="mb-3 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                        {categoryError}
+                    </div>
+                )}
+                <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
+                    {categoryStore.state.categories.map(cat => (
+                        <label
+                            key={cat.idCategory}
+                            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                        >
+                            <input
+                                type="checkbox"
+                                checked={selectedCategoryIds.includes(cat.idCategory)}
+                                onChange={() => toggleCategory(cat.idCategory)}
+                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-800">{cat.name}</span>
+                        </label>
+                    ))}
+                </div>
+                <div className="flex justify-end gap-2">
+                    <button
+                        onClick={() => setCategoryEditingUser(null)}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                    >
+                        Annuler
+                    </button>
+                    <button
+                        onClick={saveCategories}
+                        disabled={savingCategories}
+                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition disabled:opacity-50"
+                    >
+                        {savingCategories ? 'Enregistrement…' : 'Enregistrer'}
+                    </button>
+                </div>
+            </Modal>
         </div>
     )
 }
