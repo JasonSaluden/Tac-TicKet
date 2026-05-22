@@ -37,6 +37,8 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -59,36 +61,48 @@ jobs:
 
       - name: Build backend with Maven
         working-directory: backend
-        run: mvn clean package -DskipTests
+        run: mvn clean package
+
+      - name: Run Java tests
+        working-directory: backend
+        run: mvn test
+        continue-on-error: true
 
       - name: Build Docker images
-        run: docker-compose build --no-cache
+        run: docker compose build --no-cache
 
       - name: Start services
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Wait for services
         run: |
           echo "Waiting for MySQL..."
           sleep 10
-          docker-compose exec -T mysql mysqladmin ping -h localhost
+          docker exec ticketing_mysql mysqladmin ping -h localhost -u root -proot
           echo "Waiting for Backend..."
-          sleep 10
-          curl --max-time 5 --retry 10 --retry-delay 2 http://localhost:8080/api/health || true
+          for i in {1..30}; do
+            if curl --max-time 2 http://localhost:8080/api/health 2>/dev/null; then
+              echo "Backend is ready"
+              exit 0
+            fi
+            echo "Waiting for backend... attempt $i"
+            sleep 2
+          done
+          echo "Warning: Backend may not be ready yet"
 
       - name: Check service logs
         if: failure()
         run: |
           echo "=== Backend logs ==="
-          docker-compose logs backend
+          docker compose logs backend
           echo "=== Frontend logs ==="
-          docker-compose logs frontend
+          docker compose logs frontend
           echo "=== MySQL logs ==="
-          docker-compose logs mysql
+          docker compose logs mysql
 
       - name: Stop services
         if: always()
-        run: docker-compose down -v
+        run: docker compose down -v
 
   notify:
     runs-on: ubuntu-latest

@@ -24,7 +24,7 @@ export default function Dashboard() {
     if (user?.role === 'ADMIN') {
       userService.getAllUsers().then(setUsers).catch(() => setUsers([]))
     }
-  }, [user?.role])
+  }, [user?.role, ticketStore, categoryStore])
 
   const userMap = useMemo(() => {
     const map = new Map<number, string>()

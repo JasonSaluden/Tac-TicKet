@@ -22,7 +22,7 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
         if (isOpen) {
             categoryStore.getAllCategories()
         }
-    }, [isOpen])
+    }, [isOpen, categoryStore])
 
     const handleCreateCategory = useCallback(async () => {
         if (!newCategoryName.trim()) return
@@ -46,7 +46,7 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
 
         try {
             setIsSubmitting(true)
-            await categoryStore.updateCategory(editingId, { name: editingName } as any)
+            await categoryStore.updateCategory(editingId, { name: editingName })
             setEditingId(null)
             setEditingName('')
         } finally {

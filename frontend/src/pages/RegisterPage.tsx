@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import type { AxiosError } from 'axios'
 
 export default function RegisterPage() {
   const { register } = useAuth()
@@ -18,8 +19,9 @@ export default function RegisterPage() {
     try {
       await register(form.firstName, form.lastName, form.email, form.password)
       navigate('/dashboard')
-    } catch (err: any) {
-      setError(err.response?.data?.message ?? 'Enregistrement échoué.')
+    } catch (err) {
+      const axiosError = err as AxiosError<{ message: string }>
+      setError(axiosError?.response?.data?.message ?? 'Enregistrement échoué.')
     } finally {
       setLoading(false)
     }

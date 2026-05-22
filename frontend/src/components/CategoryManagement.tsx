@@ -14,7 +14,7 @@ export function CategoryManagement() {
     // Load categories on mount
     useEffect(() => {
         categoryStore.getAllCategories()
-    }, [])
+    }, [categoryStore])
 
     const handleCreateCategory = useCallback(async () => {
         if (!newCategoryName.trim()) return
@@ -38,7 +38,7 @@ export function CategoryManagement() {
 
         try {
             setIsSubmitting(true)
-            await categoryStore.updateCategory(editingId, { name: editingName } as any)
+            await categoryStore.updateCategory(editingId, { name: editingName })
             setEditingId(null)
             setEditingName('')
         } finally {
