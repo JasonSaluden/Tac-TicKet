@@ -42,7 +42,7 @@ export default function App() {
           </Route>
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/unauthorized" element={<div className="p-8 text-red-600">Access denied.</div>} />
+          <Route path="/unauthorized" element={<div className="p-8 text-red-600">Accès refusé.</div>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

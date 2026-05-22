@@ -20,6 +20,13 @@ const STATUS_LABELS: Record<string, string> = {
   CLOSED: 'Fermé',
 }
 
+const PRIORITY_LABELS: Record<string, string> = {
+  LOW: 'Basse',
+  MEDIUM: 'Moyenne',
+  HIGH: 'Haute',
+  URGENT: 'Urgente',
+}
+
 const priorityBadge: Record<string, string> = {
   URGENT: 'bg-red-100 text-red-800',
   HIGH: 'bg-orange-100 text-orange-800',
@@ -122,6 +129,10 @@ export default function Tickets() {
     else { setSortKey(key); setSortDir('asc') }
   }
 
+  const getPriorityLabel = (priority: string) => {
+    return PRIORITY_LABELS[priority] || priority
+  }
+
   const sortIcon = (key: SortKey) => {
     if (sortKey !== key) return <span className="text-gray-300">↕</span>
     return <span className="text-gray-700">{sortDir === 'asc' ? '↑' : '↓'}</span>
@@ -188,7 +199,7 @@ export default function Tickets() {
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Toutes les priorités</option>
-            {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{p}</option>)}
+            {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{getPriorityLabel(p)}</option>)}
           </select>
           {(search || statusFilter || priorityFilter) && (
             <button onClick={resetFilters} className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900">

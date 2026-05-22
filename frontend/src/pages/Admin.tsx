@@ -17,19 +17,19 @@ interface Tab {
 const tabs: Tab[] = [
     {
         id: 'tickets',
-        label: 'Gestion Tickets',
+        label: 'Gestion des tickets',
         icon: Ticket,
         description: 'Gérez tous les tickets du système',
     },
     {
         id: 'users',
-        label: 'Gestion Users & Rôles',
+        label: 'Gestion des utilisateurs et rôles',
         icon: Users,
         description: 'Gérez les utilisateurs et leurs rôles',
     },
     {
         id: 'categories',
-        label: 'Gestion Catégories',
+        label: 'Gestion des catégories',
         icon: FolderTree,
         description: 'Créez, modifiez et supprimez les catégories de tickets',
     },

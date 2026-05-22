@@ -19,7 +19,7 @@ export default function RegisterPage() {
       await register(form.firstName, form.lastName, form.email, form.password)
       navigate('/dashboard')
     } catch (err: any) {
-      setError(err.response?.data?.message ?? 'Registration failed.')
+      setError(err.response?.data?.message ?? 'Enregistrement échoué.')
     } finally {
       setLoading(false)
     }
@@ -32,7 +32,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8 space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Create an account</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Créer un compte</h1>
         </div>
 
         {error && (
@@ -44,7 +44,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">First name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
               <input
                 type="text"
                 required
@@ -54,7 +54,7 @@ export default function RegisterPage() {
               />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Last name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
               <input
                 type="text"
                 required
@@ -77,7 +77,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
             <input
               type="password"
               required
@@ -85,7 +85,7 @@ export default function RegisterPage() {
               value={form.password}
               onChange={set('password')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Min. 8 characters"
+              placeholder="Min. 8 caractères"
             />
           </div>
 
@@ -94,14 +94,14 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full py-2 px-4 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            {loading ? 'Creating account...' : 'Create account'}
+            {loading ? 'Création du compte...' : 'Créer un compte'}
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-500">
-          Already have an account?{' '}
+          Vous avez déjà un compte ?{' '}
           <Link to="/login" className="text-blue-600 hover:underline font-medium">
-            Sign in
+            Se connecter
           </Link>
         </p>
       </div>
