@@ -1,0 +1,104 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - feat/**
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0.45
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ticketing_db
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint --  --max-warnings=0 || true
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Build backend with Maven
+        working-directory: backend
+        run: mvn clean package -DskipTests
+
+      - name: Build Docker images
+        run: docker-compose build --no-cache
+
+      - name: Start services
+        run: docker-compose up -d
+
+      - name: Wait for services
+        run: |
+          echo "Waiting for MySQL..."
+          sleep 10
+          docker-compose exec -T mysql mysqladmin ping -h localhost
+          echo "Waiting for Backend..."
+          sleep 10
+          curl --max-time 5 --retry 10 --retry-delay 2 http://localhost:8080/api/health || true
+
+      - name: Check service logs
+        if: failure()
+        run: |
+          echo "=== Backend logs ==="
+          docker-compose logs backend
+          echo "=== Frontend logs ==="
+          docker-compose logs frontend
+          echo "=== MySQL logs ==="
+          docker-compose logs mysql
+
+      - name: Stop services
+        if: always()
+        run: docker-compose down -v
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: always()
+    steps:
+      - name: Pipeline status
+        run: |
+          if [ "${{ needs.build-and-test.result }}" == "success" ]; then
+            echo "✅ Pipeline completed successfully!"
+          else
+            echo "❌ Pipeline failed!"
+          fi
