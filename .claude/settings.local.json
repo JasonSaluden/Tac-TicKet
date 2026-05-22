@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir *)"
+      "Bash(dir *)",
+      "Bash(mkdir -p C:/Users/jason.saluden/source/repos/tictac/logs)",
+      "Bash(docker compose *)"
     ]
   }
 }

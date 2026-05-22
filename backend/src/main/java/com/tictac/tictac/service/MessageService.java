@@ -3,11 +3,13 @@ package com.tictac.tictac.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tictac.tictac.entity.Conversation;
 import com.tictac.tictac.entity.Message;
+import com.tictac.tictac.event.MessagePostedEvent;
 import com.tictac.tictac.repository.ConversationRepository;
 import com.tictac.tictac.repository.MessageRepository;
 
@@ -20,6 +22,7 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
+    private final ApplicationEventPublisher events;
 
     public List<Message> getAllMessages() {
         return messageRepository.findAll();
@@ -40,7 +43,9 @@ public class MessageService {
     }
 
     public Message createMessage(Message message) {
-        return messageRepository.save(message);
+        Message saved = messageRepository.save(message);
+        events.publishEvent(new MessagePostedEvent(saved));
+        return saved;
     }
 
     public Message updateMessage(Long id, Message messageDetails) {

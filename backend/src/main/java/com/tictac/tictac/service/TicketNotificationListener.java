@@ -5,8 +5,14 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
+
+import com.tictac.tictac.entity.Message;
 import com.tictac.tictac.entity.Ticket;
 import com.tictac.tictac.entity.User;
+import com.tictac.tictac.event.MessagePostedEvent;
 import com.tictac.tictac.event.TicketAssignedEvent;
 import com.tictac.tictac.event.TicketUpdatedEvent;
 
@@ -69,6 +75,45 @@ public class TicketNotificationListener {
                 ticket.getIdTicket()
         );
         mailService.send(creator.getEmail(), subject, body);
+    }
+
+    @Async
+    @EventListener
+    public void onMessagePosted(MessagePostedEvent event) {
+        Message message = event.message();
+        if (message.getConversation() == null || message.getConversation().getTicket() == null) return;
+
+        Ticket ticket = message.getConversation().getTicket();
+        User author = message.getAuthor();
+        Long authorId = author == null ? null : author.getIdUser();
+
+        Set<User> recipients = new LinkedHashSet<>();
+        if (ticket.getCreator() != null) recipients.add(ticket.getCreator());
+        if (ticket.getAssignedAgent() != null) recipients.add(ticket.getAssignedAgent());
+
+        String authorLabel = author == null ? "Quelqu'un" : safeName(author);
+        String subject = "[TicTac] Nouveau message sur le ticket #" + ticket.getIdTicket() + " " + ticket.getTitle();
+
+        for (User recipient : recipients) {
+            if (recipient.getEmail() == null) continue;
+            if (Objects.equals(recipient.getIdUser(), authorId)) continue;
+
+            String body = String.format(
+                    "Bonjour %s,%n%n"
+                            + "%s a publié un nouveau message sur le ticket #%d \"%s\" :%n%n"
+                            + "%s%n%n"
+                            + "Consulter le ticket : %s/tickets/%d%n%n"
+                            + "— TicTac",
+                    safeName(recipient),
+                    authorLabel,
+                    ticket.getIdTicket(),
+                    ticket.getTitle(),
+                    message.getContent(),
+                    frontendUrl,
+                    ticket.getIdTicket()
+            );
+            mailService.send(recipient.getEmail(), subject, body);
+        }
     }
 
     private String safeName(User u) {
