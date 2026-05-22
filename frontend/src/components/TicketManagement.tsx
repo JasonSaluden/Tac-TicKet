@@ -14,13 +14,6 @@ export function TicketManagement() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [usersLoading, setUsersLoading] = useState(false)
 
-    // Load all data on mount
-    useEffect(() => {
-        ticketStore.getAllTickets()
-        categoryStore.getAllCategories()
-        loadUsers()
-    }, [ticketStore, categoryStore, loadUsers])
-
     const loadUsers = useCallback(async () => {
         try {
             setUsersLoading(true)
@@ -32,6 +25,13 @@ export function TicketManagement() {
             setUsersLoading(false)
         }
     }, [])
+
+    // Load all data on mount
+    useEffect(() => {
+        ticketStore.getAllTickets()
+        categoryStore.getAllCategories()
+        loadUsers()
+    }, [ticketStore, categoryStore, loadUsers])
 
     const getAgentName = (userId?: number) => {
         if (!userId) return 'Non assigné'
