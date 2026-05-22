@@ -154,7 +154,7 @@ export function UserManagement() {
         <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <StatCard label="Total" value={counts.total} />
-                <StatCard label="Admins" value={counts.admin} accent="text-purple-700" />
+                <StatCard label="Administrateurs" value={counts.admin} accent="text-purple-700" />
                 <StatCard label="Agents" value={counts.agent} accent="text-blue-700" />
                 <StatCard label="Utilisateurs" value={counts.user} accent="text-gray-700" />
             </div>

@@ -80,9 +80,9 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.firstName}
+            Bienvenue, {user?.firstName}
           </h2>
-          <p className="text-gray-600">Here's what's happening with your support tickets today.</p>
+          <p className="text-gray-600">Voici ce qui se passe avec vos tickets d'assistance aujourd'hui.</p>
         </div>
 
         {/* Stats Grid */}
@@ -90,7 +90,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-medium mb-1">Total Tickets</p>
+                <p className="text-gray-600 text-sm font-medium mb-1">Tickets totaux</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -102,7 +102,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-medium mb-1">Open</p>
+                <p className="text-gray-600 text-sm font-medium mb-1">Ouverts</p>
                 <p className="text-3xl font-bold text-blue-600">{stats.open}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -114,7 +114,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-medium mb-1">In Progress</p>
+                <p className="text-gray-600 text-sm font-medium mb-1">En cours</p>
                 <p className="text-3xl font-bold text-purple-600">{stats.inProgress}</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -126,7 +126,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-medium mb-1">Resolved</p>
+                <p className="text-gray-600 text-sm font-medium mb-1">Résolus</p>
                 <p className="text-3xl font-bold text-green-600">{stats.resolved}</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -138,7 +138,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-medium mb-1">Closed</p>
+                <p className="text-gray-600 text-sm font-medium mb-1">Fermés</p>
                 <p className="text-3xl font-bold text-gray-600">{stats.closed}</p>
               </div>
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -154,22 +154,22 @@ export default function Dashboard() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Recent Tickets</h3>
+                <h3 className="text-lg font-bold text-gray-900">Tickets récents</h3>
                 <button
                   onClick={() => navigate('/tickets')}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  View all →
+                  Voir tous →
                 </button>
               </div>
 
               {ticketStore.state.loading ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">Loading tickets...</p>
+                  <p className="text-gray-500">Chargement des tickets...</p>
                 </div>
               ) : visibleTickets.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">No tickets yet. Create your first ticket.</p>
+                  <p className="text-gray-500">Aucun ticket pour le moment. Créez votre premier ticket.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -207,22 +207,22 @@ export default function Dashboard() {
           {/* Quick Actions & Manage Categories */}
           <div>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Actions rapides</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => setIsCreateTicketOpen(true)}
                   className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition text-sm"
                 >
-                  + Create Ticket
+                  + Créer un ticket
                 </button>
                 <button className="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition text-sm">
-                  View Reports
+                  Voir les rapports
                 </button>
                 <button
                   onClick={() => setIsCategoryModalOpen(true)}
                   className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm"
                 >
-                  + New Category
+                  + Nouvelle catégorie
                 </button>
               </div>
             </div>

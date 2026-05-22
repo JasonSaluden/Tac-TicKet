@@ -77,18 +77,18 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Manage Categories"
-            description="Create, edit, or delete ticket categories"
+            title="Gérer les catégories"
+            description="Créer, modifier ou supprimer les catégories de tickets"
             size="full"
         >
             <div className="space-y-6">
                 {/* Create New Category */}
                 <div className="bg-gradient-to-r from-blue-50 to-blue-50/50 border border-blue-200 rounded-lg p-4">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Add New Category</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Ajouter une nouvelle catégorie</h3>
                     <div className="flex gap-2">
                         <input
                             type="text"
-                            placeholder="Enter category name..."
+                            placeholder="Entrez le nom de la catégorie..."
                             value={newCategoryName}
                             onChange={(e) => setNewCategoryName(e.target.value)}
                             onKeyDown={(e) => {
@@ -104,7 +104,7 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
                             disabled={!newCategoryName.trim() || isSubmitting}
                             className="bg-blue-600 hover:bg-blue-700 text-white inline-flex items-center gap-1.5"
                         >
-                            <Plus className="w-4 h-4" /> Add
+                            <Plus className="w-4 h-4" /> Ajouter
                         </Button>
                     </div>
                     {categoryStore.state.error && (
@@ -114,14 +114,14 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
 
                 {/* Categories List */}
                 <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-4">Existing Categories</h3>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-4">Catégories existantes</h3>
                     {categoryStore.state.loading && !categoryStore.state.categories.length ? (
                         <div className="text-center py-12">
-                            <p className="text-gray-500">Loading categories...</p>
+                            <p className="text-gray-500">Chargement des catégories...</p>
                         </div>
                     ) : categoryStore.state.categories.length === 0 ? (
                         <div className="text-center py-12 bg-gray-50 rounded-lg">
-                            <p className="text-gray-500">No categories yet. Create one above.</p>
+                            <p className="text-gray-500">Aucune catégorie pour le moment. Créez-en une ci-dessus.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -147,7 +147,7 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
                                                     className="flex-1 inline-flex items-center justify-center gap-1.5 p-2 text-sm text-green-600 hover:bg-green-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
                                                     title="Save"
                                                 >
-                                                    <Check className="w-4 h-4" /> Save
+                                                    <Check className="w-4 h-4" /> Enregistrer
                                                 </button>
                                                 <button
                                                     onClick={handleCancelEdit}
@@ -155,7 +155,7 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
                                                     className="flex-1 inline-flex items-center justify-center gap-1.5 p-2 text-sm text-gray-500 hover:bg-gray-200 rounded transition disabled:cursor-not-allowed font-medium"
                                                     title="Cancel"
                                                 >
-                                                    <X className="w-4 h-4" /> Cancel
+                                                    <X className="w-4 h-4" /> Annuler
                                                 </button>
                                             </div>
                                         </div>
@@ -175,7 +175,7 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
                                                     className="flex-1 inline-flex items-center justify-center gap-1.5 p-2 text-sm text-blue-600 hover:bg-blue-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
                                                     title="Edit"
                                                 >
-                                                    <Pencil className="w-4 h-4" /> Edit
+                                                    <Pencil className="w-4 h-4" /> Modifier
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteCategory(category.idCategory)}
@@ -183,7 +183,7 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
                                                     className="flex-1 inline-flex items-center justify-center gap-1.5 p-2 text-sm text-red-600 hover:bg-red-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
                                                     title="Delete"
                                                 >
-                                                    <Trash2 className="w-4 h-4" /> Delete
+                                                    <Trash2 className="w-4 h-4" /> Supprimer
                                                 </button>
                                             </div>
                                         </>
