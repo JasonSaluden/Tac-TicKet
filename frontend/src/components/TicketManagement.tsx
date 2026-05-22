@@ -19,7 +19,7 @@ export function TicketManagement() {
         ticketStore.getAllTickets()
         categoryStore.getAllCategories()
         loadUsers()
-    }, [])
+    }, [ticketStore, categoryStore, loadUsers])
 
     const loadUsers = useCallback(async () => {
         try {

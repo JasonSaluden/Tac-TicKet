@@ -22,7 +22,7 @@ export default function OAuthCallback() {
         localStorage.removeItem('token')
         navigate('/login')
       })
-  }, [])
+  }, [navigate, searchParams])
 
   return (
     <div className="min-h-screen flex items-center justify-center">

@@ -18,7 +18,7 @@ export function AgentCategoryModal() {
     if (isOpen) {
       categoryStore.getAllCategories()
     }
-  }, [isOpen])
+  }, [isOpen, categoryStore])
 
   const toggle = (id: number) => {
     setSelected(prev =>

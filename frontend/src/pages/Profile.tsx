@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Pencil, Check, X, KeyRound, Lock, LogOut, ShieldCheck, Info } from 'lucide-react'
 import { userService } from '../api/services'
+import type { AxiosError } from 'axios'
 
 export default function Profile() {
     const { user, logout, refreshUser } = useAuth()
@@ -60,12 +61,13 @@ export default function Profile() {
             setIsEditingProfile(false)
             setProfileSuccess('Profil mis à jour avec succès')
             setTimeout(() => setProfileSuccess(''), 3000)
-        } catch (err: any) {
-            setProfileError(err?.response?.data?.message || 'Erreur lors de la mise à jour')
+        } catch (err) {
+            const axiosError = err as AxiosError<{ message: string }>
+            setProfileError(axiosError?.response?.data?.message || 'Erreur lors de la mise à jour')
         } finally {
             setProfileLoading(false)
         }
-    }, [firstName, lastName, email, user])
+    }, [firstName, lastName, email, user, refreshUser])
 
     // Change Password Handlers
     const handleChangePassword = useCallback(() => {
@@ -112,12 +114,13 @@ export default function Profile() {
             setIsChangingPassword(false)
             setPasswordSuccess('Mot de passe modifié avec succès')
             setTimeout(() => setPasswordSuccess(''), 3000)
-        } catch (err: any) {
-            setPasswordError(err?.response?.data?.message || 'Erreur lors de la modification du mot de passe')
+        } catch (err) {
+            const axiosError = err as AxiosError<{ message: string }>
+            setPasswordError(axiosError?.response?.data?.message || 'Erreur lors de la modification du mot de passe')
         } finally {
             setPasswordLoading(false)
         }
-    }, [currentPassword, newPassword, confirmPassword, user])
+    }, [currentPassword, newPassword, confirmPassword, user, refreshUser])
 
     if (!user) {
         return (
