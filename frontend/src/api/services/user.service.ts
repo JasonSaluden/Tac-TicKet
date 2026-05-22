@@ -45,6 +45,10 @@ class UserService {
             currentPassword,
             newPassword,
         })
+        return response.data
+    }
+
+    /**
      * Update agent categories
      */
     async updateCategories(id: number, categoryIds: number[]): Promise<number[]> {

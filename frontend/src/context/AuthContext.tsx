@@ -32,6 +32,7 @@ function mapUser(data: Record<string, unknown>): AuthUser {
     firstName: data.firstName as string,
     lastName: data.lastName as string,
     role: data.role as AuthUser['role'],
+    oauthProvider: (data.oauthProvider as string | null) ?? null,
     categoryIds: (data.categoryIds as number[]) ?? [],
   }
 }
@@ -39,90 +40,49 @@ function mapUser(data: Record<string, unknown>): AuthUser {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
   const [user, setUser] = useState<AuthUser | null>(null)
-  const [userLoaded, setUserLoaded] = useState(false)
 
   const refreshUser = useCallback(async () => {
-    const res = await api.get('/auth/me')
-    setUser(mapUser(res.data))
-    setUserLoaded(true)
-  }, [])
+    if (!token) return
+    try {
+      const res = await api.get('/auth/me')
+      setUser(mapUser(res.data))
+    } catch (err) {
+      console.error('Failed to refresh user:', err)
+    }
+  }, [token])
 
   useEffect(() => {
     if (token) {
-      api.get('/auth/me')
-        .then((res) => setUser({
-          idUser: res.data.idUser,
-          email: res.data.email,
-          firstName: res.data.firstName,
-          lastName: res.data.lastName,
-          role: res.data.role,
-          oauthProvider: res.data.oauthProvider,
-          categoryIds: res.data.categoryIds ?? [],
-        }))
-        .catch(() => logout())
-      refreshUser().catch(() => logout())
+      refreshUser().catch(() => {
+        localStorage.removeItem('token')
+        setToken(null)
+        setUser(null)
+      })
     }
-  }, [token])
+  }, [token, refreshUser])
 
   const login = async (email: string, password: string) => {
     const res = await api.post('/auth/login', { email, password })
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
-    setUser({
-      idUser: res.data.idUser,
-      email: res.data.email,
-      firstName: res.data.firstName,
-      lastName: res.data.lastName,
-      role: res.data.role,
-      oauthProvider: res.data.oauthProvider,
-      categoryIds: [],
-    })
-    setUser({ ...mapUser(res.data), categoryIds: [] })
+    setUser(mapUser(res.data))
   }
 
   const register = async (firstName: string, lastName: string, email: string, password: string) => {
     const res = await api.post('/auth/register', { firstName, lastName, email, password })
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
-    setUser({
-      idUser: res.data.idUser,
-      email: res.data.email,
-      firstName: res.data.firstName,
-      lastName: res.data.lastName,
-      role: res.data.role,
-      oauthProvider: res.data.oauthProvider,
-      categoryIds: [],
-    })
-    setUser({ ...mapUser(res.data), categoryIds: [] })
+    setUser(mapUser(res.data))
   }
 
   const logout = () => {
     localStorage.removeItem('token')
     setToken(null)
     setUser(null)
-    setUserLoaded(false)
-  }
-
-  const refreshUser = async () => {
-    if (!token) return
-    try {
-      const res = await api.get('/auth/me')
-      setUser({
-        idUser: res.data.idUser,
-        email: res.data.email,
-        firstName: res.data.firstName,
-        lastName: res.data.lastName,
-        role: res.data.role,
-        oauthProvider: res.data.oauthProvider,
-        categoryIds: res.data.categoryIds ?? [],
-      })
-    } catch (err) {
-      console.error('Failed to refresh user:', err)
-    }
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, refreshUser, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, userLoaded: !!user, login, register, logout, refreshUser, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   )
