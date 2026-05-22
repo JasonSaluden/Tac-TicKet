@@ -1,7 +1,5 @@
 package com.tictac.tictac.controller;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +15,9 @@ import com.tictac.tictac.dto.UserDTO;
 import com.tictac.tictac.entity.User;
 import com.tictac.tictac.service.AuthService;
 import com.tictac.tictac.service.UserService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/auth")
@@ -44,6 +45,7 @@ public class AuthController {
                 .lastName(principal.getLastName())
                 .email(principal.getEmail())
                 .role(principal.getRole().getName().name())
+                .oauthProvider(principal.getOauthProvider())
                 .createdAt(principal.getCreatedAt())
                 .categoryIds(userService.getCategoryIds(principal.getIdUser()))
                 .build();

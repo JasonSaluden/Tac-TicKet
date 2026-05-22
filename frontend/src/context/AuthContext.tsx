@@ -8,6 +8,7 @@ interface AuthUser {
   firstName: string
   lastName: string
   role: 'ADMIN' | 'AGENT' | 'USER'
+  oauthProvider?: string | null
   categoryIds: number[]
 }
 
@@ -17,6 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (firstName: string, lastName: string, email: string, password: string) => Promise<void>
   logout: () => void
+  refreshUser: () => Promise<void>
   isAuthenticated: boolean
 }
 
@@ -35,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           firstName: res.data.firstName,
           lastName: res.data.lastName,
           role: res.data.role,
+          oauthProvider: res.data.oauthProvider,
           categoryIds: res.data.categoryIds ?? [],
         }))
         .catch(() => logout())
@@ -51,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       firstName: res.data.firstName,
       lastName: res.data.lastName,
       role: res.data.role,
+      oauthProvider: res.data.oauthProvider,
       categoryIds: [],
     })
   }
@@ -65,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       firstName: res.data.firstName,
       lastName: res.data.lastName,
       role: res.data.role,
+      oauthProvider: res.data.oauthProvider,
       categoryIds: [],
     })
   }
@@ -75,8 +80,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
+  const refreshUser = async () => {
+    if (!token) return
+    try {
+      const res = await api.get('/auth/me')
+      setUser({
+        idUser: res.data.idUser,
+        email: res.data.email,
+        firstName: res.data.firstName,
+        lastName: res.data.lastName,
+        role: res.data.role,
+        oauthProvider: res.data.oauthProvider,
+        categoryIds: res.data.categoryIds ?? [],
+      })
+    } catch (err) {
+      console.error('Failed to refresh user:', err)
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, refreshUser, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   )

@@ -3,24 +3,26 @@ package com.tictac.tictac.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tictac.tictac.dto.ChangePasswordRequest;
 import com.tictac.tictac.dto.UserDTO;
 import com.tictac.tictac.entity.RoleName;
 import com.tictac.tictac.entity.User;
 import com.tictac.tictac.repository.RoleRepository;
 import com.tictac.tictac.service.UserService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/users")
@@ -80,6 +82,15 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{id}/change-password")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.idUser")
+    public ResponseEntity<UserDTO> changePassword(
+            @PathVariable Long id,
+            @RequestBody ChangePasswordRequest request
+    ) {
+        return ResponseEntity.ok(toDTO(userService.changePassword(id, request.getCurrentPassword(), request.getNewPassword())));
+    }
+
     private UserDTO toDTO(User user) {
         return UserDTO.builder()
                 .idUser(user.getIdUser())
@@ -87,6 +98,7 @@ public class UserController {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .role(user.getRole().getName().name())
+                .oauthProvider(user.getOauthProvider())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

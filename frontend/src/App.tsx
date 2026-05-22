@@ -8,6 +8,7 @@ import OAuthCallback from './pages/OAuthCallback'
 import Dashboard from './pages/Dashboard'
 import Tickets from './pages/Tickets'
 import TicketConversation from './pages/TicketConversation'
+import Profile from './pages/Profile'
 import Admin from './pages/Admin'
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/tickets/:id" element={<TicketConversation />} />
+            <Route path="/profile" element={<Profile />} />
             <Route
               path="/admin"
               element={

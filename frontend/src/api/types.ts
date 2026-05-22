@@ -5,6 +5,7 @@ export interface AuthUser {
     firstName: string
     lastName: string
     role: 'ADMIN' | 'AGENT' | 'USER'
+    oauthProvider?: string | null
 }
 
 export interface LoginResponse {
@@ -14,6 +15,7 @@ export interface LoginResponse {
     firstName: string
     lastName: string
     role: 'ADMIN' | 'AGENT' | 'USER'
+    oauthProvider?: string | null
 }
 
 // Ticket Types
