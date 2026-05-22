@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Pencil, Check, X, KeyRound, Lock, LogOut, ShieldCheck, Info } from 'lucide-react'
 import { userService } from '../api/services'
 
 export default function Profile() {
@@ -57,7 +58,7 @@ export default function Profile() {
             })
             await refreshUser()
             setIsEditingProfile(false)
-            setProfileSuccess('Profil mis à jour avec succès ✅')
+            setProfileSuccess('Profil mis à jour avec succès')
             setTimeout(() => setProfileSuccess(''), 3000)
         } catch (err: any) {
             setProfileError(err?.response?.data?.message || 'Erreur lors de la mise à jour')
@@ -109,7 +110,7 @@ export default function Profile() {
             await userService.changePassword(user!.idUser, currentPassword, newPassword)
             await refreshUser()
             setIsChangingPassword(false)
-            setPasswordSuccess('Mot de passe modifié avec succès ✅')
+            setPasswordSuccess('Mot de passe modifié avec succès')
             setTimeout(() => setPasswordSuccess(''), 3000)
         } catch (err: any) {
             setPasswordError(err?.response?.data?.message || 'Erreur lors de la modification du mot de passe')
@@ -147,7 +148,7 @@ export default function Profile() {
                             </h2>
                             <p className="text-gray-600 text-sm mt-1">{user.email}</p>
                             <div className="mt-4 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                                {user.role === 'ADMIN' ? '👨‍💼 Admin' : user.role === 'AGENT' ? '🎫 Agent' : '👤 Utilisateur'}
+                                {user.role === 'ADMIN' ? 'Admin' : user.role === 'AGENT' ? 'Agent' : 'Utilisateur'}
                             </div>
                         </div>
                     </div>
@@ -162,16 +163,17 @@ export default function Profile() {
                             {!isEditingProfile && (
                                 <button
                                     onClick={handleEditProfile}
-                                    className="px-3 py-1 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded transition"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded transition"
                                 >
-                                    ✏️ Modifier
+                                    <Pencil className="w-4 h-4" /> Modifier
                                 </button>
                             )}
                         </div>
 
                         {user?.oauthProvider && (
-                            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm">
-                                ℹ️ Connecté via {user.oauthProvider}. Votre profil est géré par {user.oauthProvider}.
+                            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm flex items-start gap-2">
+                                <Info className="w-4 h-4 mt-0.5 shrink-0" />
+                                <span>Connecté via {user.oauthProvider}. Votre profil est géré par {user.oauthProvider}.</span>
                             </div>
                         )}
 
@@ -237,17 +239,17 @@ export default function Profile() {
                                         type="button"
                                         onClick={handleSaveProfile}
                                         disabled={profileLoading}
-                                        className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                                     >
-                                        {profileLoading ? 'Sauvegarde...' : '✅ Enregistrer'}
+                                        {profileLoading ? 'Sauvegarde...' : (<><Check className="w-4 h-4" /> Enregistrer</>)}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={handleCancelEditProfile}
                                         disabled={profileLoading}
-                                        className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition disabled:cursor-not-allowed"
+                                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition disabled:cursor-not-allowed"
                                     >
-                                        ❌ Annuler
+                                        <X className="w-4 h-4" /> Annuler
                                     </button>
                                 </div>
                             </form>
@@ -289,9 +291,9 @@ export default function Profile() {
                                 {!isChangingPassword && (
                                     <button
                                         onClick={handleChangePassword}
-                                        className="px-3 py-1 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded transition"
+                                        className="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded transition"
                                     >
-                                        🔐 Changer le mot de passe
+                                        <KeyRound className="w-4 h-4" /> Changer le mot de passe
                                     </button>
                                 )}
                             </div>
@@ -361,25 +363,26 @@ export default function Profile() {
                                             type="button"
                                             onClick={handleConfirmChangePassword}
                                             disabled={passwordLoading}
-                                            className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                                         >
-                                            {passwordLoading ? 'Modification...' : '🔐 Modifier le mot de passe'}
+                                            {passwordLoading ? 'Modification...' : (<><KeyRound className="w-4 h-4" /> Modifier le mot de passe</>)}
                                         </button>
                                         <button
                                             type="button"
                                             onClick={handleCancelChangePassword}
                                             disabled={passwordLoading}
-                                            className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition disabled:cursor-not-allowed"
+                                            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg font-medium transition disabled:cursor-not-allowed"
                                         >
-                                            ❌ Annuler
+                                            <X className="w-4 h-4" /> Annuler
                                         </button>
                                     </div>
                                 </form>
                             ) : (
                                 <div className="space-y-3">
                                     <p className="text-gray-600">Votre mot de passe est stocké de façon sécurisée.</p>
-                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm">
-                                        🔒 Changez régulièrement votre mot de passe pour sécuriser votre compte
+                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 text-sm flex items-start gap-2">
+                                        <Lock className="w-4 h-4 mt-0.5 shrink-0" />
+                                        <span>Changez régulièrement votre mot de passe pour sécuriser votre compte</span>
                                     </div>
                                 </div>
                             )}
@@ -397,8 +400,9 @@ export default function Profile() {
                         <div className="bg-white rounded-lg border border-gray-200 p-6">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">Sécurité</h3>
                             <div className="space-y-3">
-                                <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-                                    🔒 Votre compte est sécurisé via {user.oauthProvider}. La gestion de la sécurité se fait directement dans votre compte {user.oauthProvider}.
+                                <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm flex items-start gap-2">
+                                    <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
+                                    <span>Votre compte est sécurisé via {user.oauthProvider}. La gestion de la sécurité se fait directement dans votre compte {user.oauthProvider}.</span>
                                 </div>
                                 <p className="text-gray-600 text-sm">
                                     Pour changer votre mot de passe ou votre email, veuillez le faire sur votre compte {user.oauthProvider}.
@@ -413,9 +417,9 @@ export default function Profile() {
                             logout()
                             navigate('/login')
                         }}
-                        className="w-full px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium transition border border-red-200"
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium transition border border-red-200"
                     >
-                        🚪 Se déconnecter
+                        <LogOut className="w-4 h-4" /> Se déconnecter
                     </button>
                 </div>
             </div>

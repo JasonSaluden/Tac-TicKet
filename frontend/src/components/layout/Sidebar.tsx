@@ -1,13 +1,15 @@
 import { NavLink } from 'react-router-dom'
+import { LayoutDashboard, Ticket, User, Settings } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 type Role = 'ADMIN' | 'AGENT' | 'USER'
 
-const links: { to: string; label: string; icon: string; roles?: Role[] }[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: '📊' },
-  { to: '/tickets', label: 'Tickets', icon: '🎫' },
-  { to: '/profile', label: 'Profil', icon: '👤' },
-  { to: '/admin', label: 'Admin', icon: '⚙️', roles: ['ADMIN'] },
+const links: { to: string; label: string; icon: LucideIcon; roles?: Role[] }[] = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/tickets', label: 'Tickets', icon: Ticket },
+  { to: '/profile', label: 'Profil', icon: User },
+  { to: '/admin', label: 'Admin', icon: Settings, roles: ['ADMIN'] },
 ]
 
 export default function Sidebar() {
@@ -20,7 +22,7 @@ export default function Sidebar() {
   return (
     <aside className="w-60 shrink-0 bg-white border-r border-gray-200">
       <nav className="p-4 space-y-1">
-        {visibleLinks.map(({ to, label, icon }) => (
+        {visibleLinks.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -32,7 +34,7 @@ export default function Sidebar() {
               }`
             }
           >
-            <span className="text-base">{icon}</span>
+            <Icon className="w-4 h-4" />
             <span>{label}</span>
           </NavLink>
         ))}

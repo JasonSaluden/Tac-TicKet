@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Check, X, Pencil, Trash2 } from 'lucide-react'
 import { useTicketStore } from '../stores/ticket.store'
 import { useCategoryStore } from '../stores/category.store'
 import { userService } from '../api/services'
@@ -145,7 +146,7 @@ export function TicketManagement() {
                 </div>
             ) : ticketStore.state.tickets.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded-lg">
-                    <p className="text-gray-500">Aucun ticket pour le moment. 📋</p>
+                    <p className="text-gray-500">Aucun ticket pour le moment.</p>
                 </div>
             ) : (
                 <div className="overflow-x-auto">
@@ -255,16 +256,16 @@ export function TicketManagement() {
                                                 <button
                                                     onClick={handleSaveEdit}
                                                     disabled={isSubmitting}
-                                                    className="px-2 py-1 text-xs text-green-600 hover:bg-green-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
+                                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs text-green-600 hover:bg-green-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
                                                 >
-                                                    ✅ Sauver
+                                                    <Check className="w-3.5 h-3.5" /> Sauver
                                                 </button>
                                                 <button
                                                     onClick={handleCancelEdit}
                                                     disabled={isSubmitting}
-                                                    className="px-2 py-1 text-xs text-gray-500 hover:bg-gray-200 rounded transition disabled:cursor-not-allowed font-medium"
+                                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:bg-gray-200 rounded transition disabled:cursor-not-allowed font-medium"
                                                 >
-                                                    ❌ Annuler
+                                                    <X className="w-3.5 h-3.5" /> Annuler
                                                 </button>
                                             </td>
                                         </>
@@ -301,16 +302,16 @@ export function TicketManagement() {
                                                 <button
                                                     onClick={() => handleStartEdit(ticket)}
                                                     disabled={isSubmitting}
-                                                    className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
+                                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
                                                 >
-                                                    ✏️ Éditer
+                                                    <Pencil className="w-3.5 h-3.5" /> Éditer
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteTicket(ticket.idTicket)}
                                                     disabled={isSubmitting}
-                                                    className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
+                                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
                                                 >
-                                                    🗑️ Supprimer
+                                                    <Trash2 className="w-3.5 h-3.5" /> Supprimer
                                                 </button>
                                             </td>
                                         </>

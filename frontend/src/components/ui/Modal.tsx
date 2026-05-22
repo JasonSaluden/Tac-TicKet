@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import type { ReactNode } from 'react'
+import { X } from 'lucide-react'
 
 interface ModalProps {
     isOpen: boolean
@@ -65,7 +66,7 @@ export function Modal({
                         className="p-2 hover:bg-gray-100 rounded-lg transition text-gray-500 hover:text-gray-700"
                         title="Close"
                     >
-                        ✕
+                        <X className="w-4 h-4" />
                     </button>
                 </div>
 

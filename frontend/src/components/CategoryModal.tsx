@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Plus, Check, X, Pencil, Trash2 } from 'lucide-react'
 import { Modal } from './ui/Modal'
 import { Button } from './ui/Button'
 import { useCategoryStore } from '../stores/category.store'
@@ -101,9 +102,9 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
                         <Button
                             onClick={handleCreateCategory}
                             disabled={!newCategoryName.trim() || isSubmitting}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            className="bg-blue-600 hover:bg-blue-700 text-white inline-flex items-center gap-1.5"
                         >
-                            ➕ Add
+                            <Plus className="w-4 h-4" /> Add
                         </Button>
                     </div>
                     {categoryStore.state.error && (
@@ -120,7 +121,7 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
                         </div>
                     ) : categoryStore.state.categories.length === 0 ? (
                         <div className="text-center py-12 bg-gray-50 rounded-lg">
-                            <p className="text-gray-500">No categories yet. Create one above! 📋</p>
+                            <p className="text-gray-500">No categories yet. Create one above.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -143,18 +144,18 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
                                                 <button
                                                     onClick={handleSaveEdit}
                                                     disabled={!editingName.trim() || isSubmitting}
-                                                    className="flex-1 p-2 text-sm text-green-600 hover:bg-green-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
+                                                    className="flex-1 inline-flex items-center justify-center gap-1.5 p-2 text-sm text-green-600 hover:bg-green-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
                                                     title="Save"
                                                 >
-                                                    ✅ Save
+                                                    <Check className="w-4 h-4" /> Save
                                                 </button>
                                                 <button
                                                     onClick={handleCancelEdit}
                                                     disabled={isSubmitting}
-                                                    className="flex-1 p-2 text-sm text-gray-500 hover:bg-gray-200 rounded transition disabled:cursor-not-allowed font-medium"
+                                                    className="flex-1 inline-flex items-center justify-center gap-1.5 p-2 text-sm text-gray-500 hover:bg-gray-200 rounded transition disabled:cursor-not-allowed font-medium"
                                                     title="Cancel"
                                                 >
-                                                    ❌ Cancel
+                                                    <X className="w-4 h-4" /> Cancel
                                                 </button>
                                             </div>
                                         </div>
@@ -171,18 +172,18 @@ export function CategoryModal({ isOpen, onClose }: Readonly<CategoryModalProps>)
                                                 <button
                                                     onClick={() => handleStartEdit(category)}
                                                     disabled={isSubmitting}
-                                                    className="flex-1 p-2 text-sm text-blue-600 hover:bg-blue-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
+                                                    className="flex-1 inline-flex items-center justify-center gap-1.5 p-2 text-sm text-blue-600 hover:bg-blue-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
                                                     title="Edit"
                                                 >
-                                                    ✏️ Edit
+                                                    <Pencil className="w-4 h-4" /> Edit
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteCategory(category.idCategory)}
                                                     disabled={isSubmitting}
-                                                    className="flex-1 p-2 text-sm text-red-600 hover:bg-red-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
+                                                    className="flex-1 inline-flex items-center justify-center gap-1.5 p-2 text-sm text-red-600 hover:bg-red-50 rounded transition disabled:text-gray-400 disabled:cursor-not-allowed font-medium"
                                                     title="Delete"
                                                 >
-                                                    🗑️ Delete
+                                                    <Trash2 className="w-4 h-4" /> Delete
                                                 </button>
                                             </div>
                                         </>

@@ -1,3 +1,4 @@
+import { BarChart3, Inbox, Clock, CheckCircle2, Archive } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -79,7 +80,7 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.firstName}! 👋
+            Welcome back, {user?.firstName}
           </h2>
           <p className="text-gray-600">Here's what's happening with your support tickets today.</p>
         </div>
@@ -92,8 +93,8 @@ export default function Dashboard() {
                 <p className="text-gray-600 text-sm font-medium mb-1">Total Tickets</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
-                📊
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </div>
@@ -104,8 +105,8 @@ export default function Dashboard() {
                 <p className="text-gray-600 text-sm font-medium mb-1">Open</p>
                 <p className="text-3xl font-bold text-blue-600">{stats.open}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
-                ✨
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Inbox className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </div>
@@ -116,8 +117,8 @@ export default function Dashboard() {
                 <p className="text-gray-600 text-sm font-medium mb-1">In Progress</p>
                 <p className="text-3xl font-bold text-purple-600">{stats.inProgress}</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-2xl">
-                ⚡
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </div>
@@ -128,8 +129,8 @@ export default function Dashboard() {
                 <p className="text-gray-600 text-sm font-medium mb-1">Resolved</p>
                 <p className="text-3xl font-bold text-green-600">{stats.resolved}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-2xl">
-                ✅
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </div>
@@ -140,8 +141,8 @@ export default function Dashboard() {
                 <p className="text-gray-600 text-sm font-medium mb-1">Closed</p>
                 <p className="text-3xl font-bold text-gray-600">{stats.closed}</p>
               </div>
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">
-                ✔️
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Archive className="w-6 h-6 text-gray-600" />
               </div>
             </div>
           </div>
@@ -168,7 +169,7 @@ export default function Dashboard() {
                 </div>
               ) : visibleTickets.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">No tickets yet. Create your first ticket! 🚀</p>
+                  <p className="text-gray-500">No tickets yet. Create your first ticket.</p>
                 </div>
               ) : (
                 <div className="space-y-3">

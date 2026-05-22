@@ -35,12 +35,31 @@ services:
       SPRING_DATASOURCE_PASSWORD: root
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      MAIL_ENABLED: "true"
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: "587"
+      MAIL_USERNAME: tictac-mail-service@gmail.com
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_FROM: tictac-mail-service@gmail.com
+      MAIL_SMTP_AUTH: "true"
+      MAIL_SMTP_STARTTLS: "true"
       JAVA_OPTS: -Dspring.datasource.url=jdbc:mysql://mysql:3306/ticketing_db
     ports:
       - "8080:8080"
     depends_on:
       mysql:
         condition: service_healthy
+    networks:
+      - ticketing_network
+    restart: unless-stopped
+
+  # MailHog - Fake SMTP for local testing (UI on http://localhost:8025)
+  mailhog:
+    image: mailhog/mailhog
+    container_name: ticketing_mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - ticketing_network
     restart: unless-stopped

@@ -1,3 +1,4 @@
+import { Ticket } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 export default function Header() {
@@ -8,7 +9,7 @@ export default function Header() {
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold">🎫</span>
+            <Ticket className="w-5 h-5 text-white" strokeWidth={2.5} />
           </div>
           <h1 className="text-xl font-bold text-gray-900">TicTac</h1>
         </div>
