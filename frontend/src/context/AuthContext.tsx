@@ -8,6 +8,7 @@ interface AuthUser {
   firstName: string
   lastName: string
   role: 'ADMIN' | 'AGENT' | 'USER'
+  oauthProvider?: string | null
   categoryIds: number[]
 }
 
@@ -48,6 +49,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (token) {
+      api.get('/auth/me')
+        .then((res) => setUser({
+          idUser: res.data.idUser,
+          email: res.data.email,
+          firstName: res.data.firstName,
+          lastName: res.data.lastName,
+          role: res.data.role,
+          oauthProvider: res.data.oauthProvider,
+          categoryIds: res.data.categoryIds ?? [],
+        }))
+        .catch(() => logout())
       refreshUser().catch(() => logout())
     }
   }, [token])
@@ -56,6 +68,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await api.post('/auth/login', { email, password })
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
+    setUser({
+      idUser: res.data.idUser,
+      email: res.data.email,
+      firstName: res.data.firstName,
+      lastName: res.data.lastName,
+      role: res.data.role,
+      oauthProvider: res.data.oauthProvider,
+      categoryIds: [],
+    })
     setUser({ ...mapUser(res.data), categoryIds: [] })
   }
 
@@ -63,6 +84,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await api.post('/auth/register', { firstName, lastName, email, password })
     localStorage.setItem('token', res.data.token)
     setToken(res.data.token)
+    setUser({
+      idUser: res.data.idUser,
+      email: res.data.email,
+      firstName: res.data.firstName,
+      lastName: res.data.lastName,
+      role: res.data.role,
+      oauthProvider: res.data.oauthProvider,
+      categoryIds: [],
+    })
     setUser({ ...mapUser(res.data), categoryIds: [] })
   }
 
@@ -73,8 +103,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserLoaded(false)
   }
 
+  const refreshUser = async () => {
+    if (!token) return
+    try {
+      const res = await api.get('/auth/me')
+      setUser({
+        idUser: res.data.idUser,
+        email: res.data.email,
+        firstName: res.data.firstName,
+        lastName: res.data.lastName,
+        role: res.data.role,
+        oauthProvider: res.data.oauthProvider,
+        categoryIds: res.data.categoryIds ?? [],
+      })
+    } catch (err) {
+      console.error('Failed to refresh user:', err)
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, token, userLoaded, login, register, logout, refreshUser, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, refreshUser, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   )

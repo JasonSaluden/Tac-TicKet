@@ -31,13 +31,20 @@ class UserService {
      */
     async updateUser(
         id: number,
-        updates: Partial<Omit<AuthUser, 'userId'>>
+        updates: Partial<Omit<AuthUser, 'idUser'>>
     ): Promise<AuthUser> {
         const response = await api.put<AuthUser>(`/users/${id}`, updates)
         return response.data
     }
 
     /**
+     * Change user password
+     */
+    async changePassword(id: number, currentPassword: string, newPassword: string): Promise<AuthUser> {
+        const response = await api.post<AuthUser>(`/users/${id}/change-password`, {
+            currentPassword,
+            newPassword,
+        })
      * Update agent categories
      */
     async updateCategories(id: number, categoryIds: number[]): Promise<number[]> {

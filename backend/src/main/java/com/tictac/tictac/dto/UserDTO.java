@@ -18,6 +18,7 @@ public class UserDTO {
     private String lastName;
     private String email;
     private String role;
+    private String oauthProvider;
     private LocalDateTime createdAt;
     private List<Long> categoryIds;
 }

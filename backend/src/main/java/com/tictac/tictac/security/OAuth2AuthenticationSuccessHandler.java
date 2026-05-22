@@ -2,9 +2,6 @@ package com.tictac.tictac.security;
 
 import java.io.IOException;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -15,6 +12,10 @@ import com.tictac.tictac.entity.RoleName;
 import com.tictac.tictac.entity.User;
 import com.tictac.tictac.repository.RoleRepository;
 import com.tictac.tictac.repository.UserRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -38,6 +39,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String email = oAuth2User.getAttribute("email");
         String firstName = oAuth2User.getAttribute("given_name");
         String lastName = oAuth2User.getAttribute("family_name");
+        String clientId = authentication.getName(); // Usually the OAuth provider name
 
         User user = userRepository.findByEmail(email).orElseGet(() -> {
             var userRole = roleRepository.findByName(RoleName.USER)
@@ -47,6 +49,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                     .firstName(firstName)
                     .lastName(lastName)
                     .role(userRole)
+                    .oauthProvider("GOOGLE") // Set the OAuth provider
                     .build());
         });
 

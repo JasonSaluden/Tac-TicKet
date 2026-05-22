@@ -65,4 +65,16 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+    public User changePassword(Long id, String currentPassword, String newPassword) {
+        return userRepository.findById(id).map(user -> {
+            // Verify current password
+            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+                throw new RuntimeException("Current password is incorrect");
+            }
+            // Set new password
+            user.setPassword(passwordEncoder.encode(newPassword));
+            return userRepository.save(user);
+        }).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
 }
