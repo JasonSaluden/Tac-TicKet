@@ -31,7 +31,7 @@ export function TicketManagement() {
         ticketStore.getAllTickets()
         categoryStore.getAllCategories()
         loadUsers()
-    }, [ticketStore, categoryStore, loadUsers])
+    }, [loadUsers])
 
     const getAgentName = (userId?: number) => {
         if (!userId) return 'Non assigné'

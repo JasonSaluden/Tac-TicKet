@@ -14,7 +14,7 @@ export function CategoryManagement() {
     // Load categories on mount
     useEffect(() => {
         categoryStore.getAllCategories()
-    }, [categoryStore])
+    }, [])
 
     const handleCreateCategory = useCallback(async () => {
         if (!newCategoryName.trim()) return
